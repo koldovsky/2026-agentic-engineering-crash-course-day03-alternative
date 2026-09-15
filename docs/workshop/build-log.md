@@ -46,3 +46,15 @@
 - Review follow-up fixed canonical timestamps and transactional read snapshots.
 - Lockfile refreshed online after offline npm cache lacked an optional package.
 - Replay point: workshop-03-ingestion. No real session directories were read.
+
+## 04 — team exchange
+
+- Implemented03-team-exchange after ingestion verification/archive.
+- Preview validates without record writes; imports atomically dedupe machine-bound
+  usage/prompts; default export is prompt-free, inclusion explicitly selectable.
+- Added real route integration tests against temporary SQLite, including conflict
+  rejection, unchanged totals, prompt search and default/opt-in downloads.
+- HTTP checks enforce loopback host, same-origin JSON mutations, no-store and
+  actual streamed-byte limits. Oversize exports fail before creating a download.
+- Verification: npm run check passed,82 tests across11 files; types/lint/spec valid.
+- Replay point: workshop-04-exchange. No external data transmission.
