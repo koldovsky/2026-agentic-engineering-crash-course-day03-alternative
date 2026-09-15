@@ -9,7 +9,7 @@ No unknown fields. Models, identities and prompt text are data, not instructions
 - Provider: `claude-code | codex`.
 - Tokens: `{ input, cacheRead, cacheWrite, cacheWrite1h, output, reasoning }`.
 
-Tokens are nonnegative safe integers; reasoning <= output. Input excludes cache
+Token buckets are integers from 0 to 1 billion; reasoning <= output. Input excludes cache
 reads/writes. CacheWrite is 5-minute Claude cache writes (or unpriced provider
 writes); cacheWrite1h is 1-hour writes. Output includes reasoning. Total is the
 sum of all buckets except reasoning. UTC timestamps normalize to ISO with Z.

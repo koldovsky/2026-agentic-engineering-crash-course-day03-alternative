@@ -20,3 +20,15 @@
   prompt-free default exports, API-equivalent pricing and isolated demo data.
 - Four implementation changes; design integration pending reference access.
 - User requested plan and build. No invented human approval checkpoint.
+
+## 02 — usage ledger
+
+- Authored/validated 01-usage-ledger before implementing schema, SQLite, rates,
+  aggregates and isolated demo data. Prepared the next ingestion spec while tests ran.
+- Verification: npm run check passed (21 tests across5 files), lint, generated route
+  types/TypeScript, and strict OpenSpec validation. Persistence tested by reopening
+  a temporary SQLite file; conflicting imports rolled back all additions.
+- Fixed test fixture placement to avoid registering the same tests twice; switched
+  Vitest config to .mts to remove ambiguous module loading.
+- Seed is84 fictional usage events and84 prompts,42 sessions,4 members/5 machines.
+- API prices preserve unpriced coverage. Node24 SQLite uses no native addon.
