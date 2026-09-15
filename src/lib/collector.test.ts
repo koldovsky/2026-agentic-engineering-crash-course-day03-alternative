@@ -6,6 +6,15 @@ import { collect, writeBundle } from "./collector";
 import { BundleSchema, MAX_FILE_BYTES } from "./schema";
 
 describe("explicit collector", () => {
+  it("reports invalid UTF-8 without silently changing human text", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "token-atlas-encoding-"));
+    try {
+      await writeFile(join(directory, "damaged.jsonl"), Buffer.concat([Buffer.from('{"text":"before'), Buffer.from([255]), Buffer.from('after"}') ]));
+      const result = await collect({ roots: [{ provider: "claude-code", path: directory }], machine: { id: "test", label: "Test", member: "Maya" }, includePrompts: true });
+      expect(result.filesRead).toBe(0); expect(result.bundle.prompts).toEqual([]);
+      expect(result.diagnostics[0].code).toBe("invalid-encoding");
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
   it("skips oversize files and linked directories", async () => {
     const directory = await mkdtemp(join(tmpdir(), "token-atlas-limits-"));
     try {

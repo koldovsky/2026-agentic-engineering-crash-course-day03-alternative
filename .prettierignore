@@ -1,0 +1,12 @@
+.next/
+node_modules/
+.agents/
+.claude/
+.codex/
+openspec/changes/archive/
+data/
+exports/
+test-results/
+playwright-report/
+package-lock.json
+skills-lock.json

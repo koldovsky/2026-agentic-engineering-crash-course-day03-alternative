@@ -6,13 +6,13 @@ status and [build-log.md](build-log.md) before claiming a checkpoint is ready.
 
 ## Where each instruction goes
 
-| Workflow | Codex chat | Claude Code chat |
-| --- | --- | --- |
-| Explore | `$openspec-explore` | `/opsx:explore` |
-| Propose | `$openspec-propose` | `/opsx:propose` |
-| Revise artifacts | `$openspec-update-change` | `/opsx:update` |
-| Apply tasks | `$openspec-apply-change` | `/opsx:apply` |
-| Archive | `$openspec-archive-change` | `/opsx:archive` |
+| Workflow         | Codex chat                 | Claude Code chat |
+| ---------------- | -------------------------- | ---------------- |
+| Explore          | `$openspec-explore`        | `/opsx:explore`  |
+| Propose          | `$openspec-propose`        | `/opsx:propose`  |
+| Revise artifacts | `$openspec-update-change`  | `/opsx:update`   |
+| Apply tasks      | `$openspec-apply-change`   | `/opsx:apply`    |
+| Archive          | `$openspec-archive-change` | `/opsx:archive`  |
 
 Paste a prompt into the agent chat, replacing the initial Codex skill name with
 the Claude Code form when using Claude. These are not shell commands. Codex uses
@@ -81,6 +81,8 @@ The token total must be 150 because reasoning is already within output. For an
 exact model absent from the price snapshot, retain all 150 tokens and report
 the event as unpriced; do not produce a known zero-dollar estimate. Make proposal,
 design, specs, and tasks coherent if they need changes. Show the artifact diff.
+Split the existing combined pricing/aggregation task into separate tasks so the
+live pricing exercise has a clear boundary. Keep aggregation for the replay.
 Do not edit implementation or tests. If the scenarios already express this,
 identify them precisely and avoid a cosmetic rewrite.
 ```
@@ -105,7 +107,8 @@ Send this as a separate message after the human review:
 $openspec-apply-change 01-usage-ledger. For this live exercise, apply only the
 task that implements token totals and price estimates, its necessary contract
 prerequisites, and its semantic tests. Read the current artifacts and identify
-the exact task before editing. Use synthetic data. Verify that reasoning is not
+the exact task created by the review before editing. Leave aggregation for the
+prepared replay checkpoint. Use synthetic data. Verify that reasoning is not
 counted twice and that unknown model pricing remains unavailable while usage is
 retained. Use a priced fixture to verify the expected USD calculation from the
 recorded per-million rates. Stop after this bounded task and report the remaining

@@ -1,6 +1,6 @@
 # Collect from another machine
 
-Install Node24 and this repository's dependencies (`npm ci`) on the contributor's
+Install Node 24 and this repository's dependencies (`npm ci`) on the contributor's
 machine. No provider API key is needed. Pick consistent member/machine labels;
 changing attribution for the same machine ID creates a conflict rather than
 silently moving another person's usage.
@@ -42,7 +42,7 @@ the product does not claim automatic redaction. Original prompts are available
 only while retained in supported local JSONL; injected context, tool results,
 compaction summaries, subagent inputs and model replies are excluded.
 
-Limits:20 MiB/file,100 MiB/collection,2,000 JSONL files,10,000 visited entries,
-20 levels of nesting,20,000 records of each kind. Diagnostics are capped at200.
+Limits: 20 MiB/file, 100 MiB/collection, 2,000 JSONL files, 10,000 visited entries,
+20 levels of nesting, 20,000 records of each kind. Diagnostics are capped at 200.
 Use `npm run collect -- --help` for actual supported flags. See
 [provider coverage](providers.md) and [portable contract](data-contract.md).

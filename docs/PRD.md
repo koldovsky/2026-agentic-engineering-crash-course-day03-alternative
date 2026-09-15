@@ -17,20 +17,20 @@ uploading logs to a service. Contributors need a simple file exchange workflow.
 
 ## MVP requirements
 
-| ID | Requirement | Evidence |
-| --- | --- | --- |
-| P1 | Run on localhost with persistent local storage and no API key | Start, import, restart |
-| P2 | Show tokens, estimated USD cost, sessions, members, trends and breakdowns | Synthetic dataset |
-| P3 | Filter by provider, member, model and UTC date interval | Aggregation/UI tests |
-| P4 | Parse supported Claude Code and Codex JSONL, report malformed/unsupported usage | Provider fixtures |
-| P5 | Collect human prompt text when selected; exclude model/tool/system/developer content | Negative-content tests |
-| P6 | Explicit collector CLI for local folders; browser can import raw JSONL | CLI fixture smoke test |
-| P7 | Versioned file import/export with machine/member attribution and idempotent merging | Round trip/repeat tests |
-| P8 | Exclude prompts from export by default; explicit inclusion choice | Export test |
-| P9 | Search prompts with provider/member/session/date context | UI acceptance |
-| P10 | Explicit synthetic demo separate from real persisted usage | Demo/local switch |
-| P11 | Apply supplied Claude Design system after contents can be inspected | Pending accessible reference |
-| P12 | Save SDD steps, decisions, failures, verification and replay points | Guide, build log and Git tags |
+| ID  | Requirement                                                                          | Evidence                      |
+| --- | ------------------------------------------------------------------------------------ | ----------------------------- |
+| P1  | Run on localhost with persistent local storage and no API key                        | Start, import, restart        |
+| P2  | Show tokens, estimated USD cost, sessions, members, trends and breakdowns            | Synthetic dataset             |
+| P3  | Filter by provider, member, model and UTC date interval                              | Aggregation/UI tests          |
+| P4  | Parse supported Claude Code and Codex JSONL, report malformed/unsupported usage      | Provider fixtures             |
+| P5  | Collect human prompt text when selected; exclude model/tool/system/developer content | Negative-content tests        |
+| P6  | Explicit collector CLI for local folders; browser can import raw JSONL               | CLI fixture smoke test        |
+| P7  | Versioned file import/export with machine/member attribution and idempotent merging  | Round trip/repeat tests       |
+| P8  | Exclude prompts from export by default; explicit inclusion choice                    | Export test                   |
+| P9  | Search prompts with provider/member/session/date context                             | UI acceptance                 |
+| P10 | Explicit synthetic demo separate from real persisted usage                           | Demo/local switch             |
+| P11 | Apply supplied Claude Design system after contents can be inspected                  | Pending accessible reference  |
+| P12 | Save SDD steps, decisions, failures, verification and replay points                  | Guide, build log and Git tags |
 
 ## Product rules
 

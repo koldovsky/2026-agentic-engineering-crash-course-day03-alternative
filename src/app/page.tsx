@@ -1,69 +1,139 @@
-import Image from "next/image";
+import { headers } from "next/headers";
+import Link from "next/link";
+import { ZodError } from "zod";
+import { summarize } from "@/lib/aggregate";
+import { assertLocalRequest } from "@/lib/http";
+import {
+  getBundle,
+  parseQuery,
+  queryPrompts,
+  queryMachines,
+  type ParsedQuery,
+} from "@/lib/queries";
+import { DashboardShell } from "@/components/dashboard-shell";
+import { FilterBar } from "@/components/filter-bar";
+import { Overview, TeamView } from "@/components/analytics";
+import { PromptLibrary } from "@/components/prompt-library";
+import { SourcesView } from "@/components/sources-view";
+import { PricingReference } from "@/components/pricing-reference";
+import { EmptyUsage, views, type View } from "@/components/ui";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [values, incoming] = await Promise.all([searchParams, headers()]);
+  assertLocalRequest(new Request("http://127.0.0.1/", { headers: incoming }));
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(values))
+    if (value !== undefined)
+      params.set(key, Array.isArray(value) ? value[0] : value);
+  const rawView = params.get("view") ?? "overview";
+  const view: View = views.includes(rawView as View)
+    ? (rawView as View)
+    : "overview";
+  let query: ParsedQuery;
+  try {
+    query = parseQuery(params);
+  } catch (error) {
+    if (!(error instanceof ZodError)) throw error;
+    const fallback: ParsedQuery = {
+      source: params.get("source") === "demo" ? "demo" : "local",
+      filters: {},
+      q: "",
+      page: 1,
+    };
+    return (
+      <DashboardShell query={fallback} view={view}>
+        <div className="notice notice-error" role="alert">
+          <h2>These filters need a second look</h2>
+          <p>
+            Check the provider, date range, and page number. The start date must
+            be on or before the end date.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            className="button button-secondary"
+            href={`/?view=${view}&source=${fallback.source}`}
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Clear filters
+          </Link>
         </div>
-      </main>
-    </div>
+      </DashboardShell>
+    );
+  }
+  if (view === "pricing") {
+    return (
+      <DashboardShell query={query} view={view}>
+        <PricingReference />
+      </DashboardShell>
+    );
+  }
+  const bundle = getBundle(query.source, view === "prompts");
+  if (view === "sources") {
+    return (
+      <DashboardShell query={query} view={view}>
+        <SourcesView machines={queryMachines(bundle)} source={query.source} />
+      </DashboardShell>
+    );
+  }
+  const summary = summarize(bundle, query.filters);
+  // Prompt-only imports can have no usage events. Their people and providers
+  // still need to be available in the prompt filters, without sending text.
+  const promptMachines = new Set(
+    bundle.prompts.map((prompt) => prompt.machineId),
+  );
+  const choices =
+    view === "prompts"
+      ? {
+          ...summary.choices,
+          providers: [
+            ...new Set([
+              ...summary.choices.providers,
+              ...bundle.prompts.map((prompt) => prompt.provider),
+            ]),
+          ].sort(),
+          members: [
+            ...new Set([
+              ...summary.choices.members,
+              ...bundle.machines
+                .filter((machine) => promptMachines.has(machine.id))
+                .map((machine) => machine.member),
+            ]),
+          ].sort(),
+        }
+      : summary.choices;
+  const filtered = Object.values(query.filters).some(Boolean);
+  return (
+    <DashboardShell query={query} view={view}>
+      {["overview", "team", "prompts"].includes(view) ? (
+        <FilterBar
+          key={params.toString()}
+          choices={choices}
+          query={query}
+          view={view}
+        />
+      ) : null}
+      {view === "overview" ? (
+        summary.totals.events ? (
+          <Overview summary={summary} query={query} />
+        ) : (
+          <EmptyUsage filtered={filtered} query={query} />
+        )
+      ) : null}
+      {view === "team" ? (
+        summary.totals.events ? (
+          <TeamView summary={summary} query={query} />
+        ) : (
+          <EmptyUsage filtered={filtered} query={query} />
+        )
+      ) : null}
+      {view === "prompts" ? (
+        <PromptLibrary result={queryPrompts(bundle, query)} query={query} />
+      ) : null}
+    </DashboardShell>
   );
 }

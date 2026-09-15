@@ -18,24 +18,19 @@ the dashboard can be authored and verified from scratch in 90 minutes.
 
 ## Preparation status
 
-**Authoring snapshot, 2026-09-15:** the bootstrap is recorded in
-[build-log.md](build-log.md); PRD, architecture, and data contract exist. The
-`workshop-00-bootstrap` tag was observed. The remaining checkpoints below are
-planned until the build log and Git tags establish their completion. Application
-acceptance checks in this guide are rehearsal instructions, not recorded passes.
+**Build snapshot, 2026-09-15:** the implementation and verification are recorded in
+[build-log.md](build-log.md). The checkpoints preserve the actual sequence from
+bootstrap through implementation. The 90-minute timing is a proposed run of show;
+a timed facilitator rehearsal is still needed.
 
-The facilitator must update this section after the final rehearsal. Record actual
-commands, failures, fixes, and verification in the build log. Do not convert a
-planned checkpoint into a verified one merely because its task list exists.
-
-| Replay point | Content to show | Status at guide authoring |
-| --- | --- | --- |
-| `workshop-00-bootstrap` | Next.js, Node requirement, OpenSpec, skills, test tools | Tag observed; bootstrap recorded |
-| `workshop-01-plan` | PRD, architecture, data contract, proposed changes | Documents observed; tag pending |
-| `workshop-02-ledger` | Normalized usage, SQLite, pricing, aggregation | Planned |
-| `workshop-03-ingestion` | Claude/Codex adapters and explicit collection | Planned |
-| `workshop-04-exchange` | Atomic bundle imports and optional prompt exports | Planned |
-| `workshop-05-dashboard` | Dashboard, prompt search, import/export flows | Planned |
+| Replay point            | Content to show                                          | Status at guide authoring          |
+| ----------------------- | -------------------------------------------------------- | ---------------------------------- |
+| `workshop-00-bootstrap` | Next.js, Node requirement, OpenSpec, skills, test tools  | Recorded and tagged                |
+| `workshop-01-plan`      | PRD, architecture, data contract, proposed ledger change | Recorded and tagged                |
+| `workshop-02-ledger`    | Normalized usage, SQLite, pricing, aggregation           | Verified and tagged                |
+| `workshop-03-ingestion` | Claude/Codex adapters and explicit collection            | Verified and tagged                |
+| `workshop-04-exchange`  | Atomic bundle imports and optional prompt exports        | Verified and tagged; API/test demo |
+| `workshop-05-dashboard` | Dashboard, prompt search, import/export flows            | Verified and tagged; final build   |
 
 The Claude Design reference requires sign-in. Its contents have not been
 inspected, and matching that design remains a separate dependency. Present the
@@ -43,7 +38,9 @@ current theme as provisional. See [design-system.md](../design-system.md).
 
 ## Before the audience arrives
 
-Use a disposable clone or working copy for the workshop. Keep personal logs and
+Keep this guide and the presenter prompts open from the **final checkout**. Use
+a separate disposable clone or working copy for checkpoint replay: the early tags
+do not contain these facilitator documents. Keep personal logs and
 the presenter's real database out of the demo. Use the repository's synthetic
 fixtures; rehearse with the exact files that will appear on screen.
 
@@ -84,12 +81,14 @@ At the completed dashboard checkpoint, rehearse the declared quality gates:
 ```powershell
 npm run check
 npm run build
+npx playwright install chromium
 npm run test:e2e
 ```
 
-Install the Playwright browser used by the project's configuration beforehand if
-it is missing. Do not claim the bootstrap passes feature checks that require
-files introduced in later checkpoints. The final build log owns test results.
+Install the browser and dependencies before the workshop. Browser tests start
+the production build on port 3100 with a separate test database. Checks at early
+checkpoints cover the features present at those revisions; the final build log
+records the broader final verification.
 
 For a clean, separate workshop database in PowerShell:
 
@@ -126,17 +125,17 @@ Use a fresh database when demonstrating an empty state or persistence scenario.
 
 ## Run of show
 
-| Time | Presenter action | Visible evidence |
-| --- | --- | --- |
-| 00–08 | Show the intended product, then bootstrap tools and versions | Local app purpose, installed skills, version output |
-| 08–18 | Read PRD, architecture, and data contract at `workshop-01-plan` | Scope decisions and three testable behaviors |
-| 18–30 | Review `01-usage-ledger` proposal/specs/tasks; clarify a scenario | A real Markdown diff before feature code |
-| 30–44 | Apply only the pricing task and its tests in the live branch | Behavior test, code diff, honest partial task status |
-| 44–56 | Move to `workshop-02-ledger`, then `workshop-03-ingestion` | Completed ledger and synthetic provider normalization |
-| 56–68 | Replay `workshop-04-exchange` | Duplicate import, rejected conflict, default prompt exclusion |
-| 68–80 | Replay `workshop-05-dashboard` | Filters, unknown pricing, prompt search, responsive states |
-| 80–87 | Trace requirements to checks and inspect an archived change | Passing recorded checks and living main specs |
-| 87–90 | Recap the loop and name the next change | Participant can explain proposal → review → apply → verify → archive |
+| Time  | Presenter action                                                  | Visible evidence                                                                                 |
+| ----- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 00–08 | Show the intended product, then bootstrap tools and versions      | Local app purpose, installed skills, version output                                              |
+| 08–18 | Read PRD, architecture, and data contract at `workshop-01-plan`   | Scope decisions and three testable behaviors                                                     |
+| 18–30 | Review `01-usage-ledger` proposal/specs/tasks; clarify a scenario | A real Markdown diff before feature code                                                         |
+| 30–44 | Apply only the pricing task and its tests in the live branch      | Behavior test, code diff, honest partial task status                                             |
+| 44–56 | Move to `workshop-02-ledger`, then `workshop-03-ingestion`        | Completed ledger and synthetic provider normalization                                            |
+| 56–68 | Replay `workshop-04-exchange` through API tests                   | Duplicate import, rejected conflict, default prompt exclusion                                    |
+| 68–80 | Replay `workshop-05-dashboard` in the browser                     | Filters, unknown pricing, prompt search, Preview file → Import data, Export data → Download JSON |
+| 80–87 | Trace requirements to checks and inspect an archived change       | Passing recorded checks and living main specs                                                    |
+| 87–90 | Recap the loop and name the next change                           | Participant can explain proposal → review → apply → verify → archive                             |
 
 If the live implementation exceeds 14 minutes, preserve its actual partial
 state, explain what remains, and continue with the prepared ledger checkpoint.
@@ -168,16 +167,18 @@ already included in output; an unknown model contributes to total usage while
 remaining unpriced. Have the agent revise only planning artifacts first. Compare
 the scenario with the data contract before giving the separate apply instruction.
 
-The pricing task is intentionally a bounded part of the ledger change. Implement
-its declared prerequisites if needed; stop at the agreed task boundary. Leave
-all other task boxes unchecked. Do not archive this partially applied change.
+At the planning checkpoint, task 1.2 combines pricing and aggregation. Split it
+into separate pricing and aggregation tasks during review, before applying code.
+Use the exact new task number in the live prompt. Implement its contract
+prerequisites if needed; stop at the agreed boundary. Leave all other task boxes
+unchecked. Do not archive this partially applied change.
 
 ### 3. Replay ingestion with synthetic evidence
 
 Inspect the supported provider fixtures and tests at `workshop-03-ingestion`.
 Locate the collector interface using `npm run collect -- --help` at that
-checkpoint and use its actual flags. The CLI is a planned script at bootstrap;
-it should be demonstrated only after the collector implementation is present.
+checkpoint and use its actual flags. The CLI is available after the collector
+implementation checkpoint.
 
 Trace one Claude usage event and one Codex usage event into normalized records.
 Show the test covering repeated Claude blocks or Codex cumulative snapshots.
@@ -186,6 +187,10 @@ show that the stored prompts contain only eligible human text. Explain that
 supported retained logs determine completeness.
 
 ### 4. Make file exchange observable
+
+At checkpoint 04, run `npm test -- src/lib/transfer.test.ts src/lib/routes.test.ts`
+and inspect the API behavior in those tests. The transfer interface arrives at
+checkpoint 05; demonstrate its preview/import and download controls there.
 
 Use two synthetic contributors with distinct stable machine IDs. Compare record
 counts and totals before and after the first import, repeat import, and a rejected
@@ -211,19 +216,20 @@ These are expected outcomes. Tick them only after observing the result and recor
 the tested revision in [build-log.md](build-log.md).
 
 - [ ] A fresh local database displays an honest empty state; explicit demo mode
-  shows synthetic data without silently populating real usage.
+      shows synthetic data without silently populating real usage.
 - [ ] Provider, member, model, and UTC date filters change the displayed totals
-  consistently with the selected records.
+      consistently with the selected records.
 - [ ] Total tokens exclude a second addition of reasoning tokens. Unknown model
-  usage remains counted while its price is unavailable.
+      usage remains counted while its price is unavailable.
 - [ ] Repeated records or cumulative snapshots do not inflate normalized usage.
 - [ ] A synthetic human prompt is searchable; assistant/tool/system/developer
-  text and raw records are not stored as prompts.
+      text and raw records are not stored as prompts.
 - [ ] Importing a second contributor adds that contributor's usage; repeating
-  the same bundle leaves counts and totals unchanged.
+      the same bundle leaves counts and totals unchanged.
 - [ ] An invalid or conflicting portable bundle leaves all prior data unchanged.
-- [ ] Default export has `prompts: []`; explicit inclusion exports the selected
-  normalized prompt data. Later import can add those prompts without new usage.
+- [ ] Default export has `prompts: []`; explicit inclusion exports all human
+      prompts in the selected source, regardless of view filters. Later import can
+      add those prompts without new usage.
 - [ ] Restarting the server preserves imported local usage.
 - [ ] Keyboard controls, empty/error states, and a narrow viewport are usable.
 

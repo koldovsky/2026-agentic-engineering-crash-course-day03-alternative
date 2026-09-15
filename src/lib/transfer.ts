@@ -22,7 +22,7 @@ export function importData(input: unknown, ledger: Ledger) {
     const parsed = parseTranscript(request.text, request);
     bundle = BundleSchema.parse(parsed.bundle); diagnostics = parsed.diagnostics;
   }
-  if (!bundle.usage.length && !bundle.prompts.length) throw new HttpError(400, "No supported usage or human prompts were found. Check the provider and session format.");
+  if (request.kind === "transcript" && !bundle.usage.length && !bundle.prompts.length) throw new HttpError(400, "No supported usage or human prompts were found. Check the provider and session format.");
   const preview = { machines: bundle.machines, usageCount: bundle.usage.length, promptCount: bundle.prompts.length, diagnostics };
   if (request.preview) return { preview: true as const, ...preview };
   return { preview: false as const, ...preview, ...ledger.merge(bundle) };

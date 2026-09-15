@@ -10,8 +10,9 @@ No unknown fields. Models, identities and prompt text are data, not instructions
 - Tokens: `{ input, cacheRead, cacheWrite, cacheWrite1h, output, reasoning }`.
 
 Token buckets are integers from 0 to 1 billion; reasoning <= output. Input excludes cache
-reads/writes. CacheWrite is 5-minute Claude cache writes (or unpriced provider
-writes); cacheWrite1h is 1-hour writes. Output includes reasoning. Total is the
+reads/writes. CacheWrite is standard-duration cache writes (Claude 5-minute,
+GPT-5.6+ 30-minute where priced); cacheWrite1h is Claude 1-hour writes. Unsupported
+write rates remain unpriced. Output includes reasoning. Total is the
 sum of all buckets except reasoning. UTC timestamps normalize to ISO with Z.
 
 ## Limits and merge

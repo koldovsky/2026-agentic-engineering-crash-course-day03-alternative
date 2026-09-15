@@ -21,6 +21,39 @@ describe("API-equivalent pricing", () => {
     })).toBeCloseTo(15.925);
   });
 
+  it.each([
+    ["gpt-6-astra", 73.5],
+    ["gpt-5.6-sol", 29.4],
+    ["gpt-5.6-terra", 16.7],
+    ["gpt-5.6-luna", 1.67],
+  ])("prices the supported cache-write bucket for %s", (model, expected) => {
+    expect(estimateCost({
+      provider: "codex", model,
+      tokens: { ...zero, input: 1_000_000, cacheRead: 1_000_000, cacheWrite: 1_000_000, output: 1_000_000, reasoning: 500_000 },
+    })).toBeCloseTo(expected);
+    expect(getRate("codex", model)?.cacheSource).toBe("https://developers.openai.com/api/docs/guides/prompt-caching");
+    expect(estimateCost({ provider: "codex", model, tokens: { ...zero, cacheWrite1h: 1 } })).toBeNull();
+  });
+
+  it.each([
+    ["claude-sonnet-5", 18.7],
+    ["claude-opus-5", 46.75],
+  ])("uses verified current standard prices for %s", (model, expected) => {
+    expect(estimateCost({
+      provider: "claude-code", model,
+      tokens: { input: 1_000_000, cacheRead: 1_000_000, cacheWrite: 1_000_000, cacheWrite1h: 1_000_000, output: 1_000_000, reasoning: 0 },
+    })).toBeCloseTo(expected);
+  });
+
+  it.each([
+    ["claude-sonnet-4-5-20250929", "claude-sonnet-4-5"],
+    ["claude-opus-4-5-20251101", "claude-opus-4-5"],
+    ["claude-haiku-4-5-20251001", "claude-haiku-4-5"],
+  ])("recognizes the documented dated ID %s", (model, alias) => {
+    expect(getRate("claude-code", model)?.rates).toEqual(getRate("claude-code", alias)?.rates);
+    expect(getRate("claude-code", `${model}-unknown`)).toBeNull();
+  });
+
   it("does not guess unknown models, aliases, provider combinations, or cache-write prices", () => {
     expect(getRate("claude-code", "claude-sonnet-4-6-new")).toBeNull();
     expect(getRate("codex", "claude-sonnet-4-6")).toBeNull();
@@ -31,7 +64,7 @@ describe("API-equivalent pricing", () => {
   });
 
   it("gives every supported rate an auditable source and verification date", () => {
-    expect(PRICE_RATES).toHaveLength(8);
+    expect(PRICE_RATES).toHaveLength(17);
     for (const entry of PRICE_RATES) {
       expect(entry.verifiedAt).toBe(PRICE_SNAPSHOT_DATE);
       expect(new URL(entry.source).protocol).toBe("https:");

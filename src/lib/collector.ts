@@ -58,7 +58,9 @@ export async function collect(options: CollectionOptions) {
       if (buffer.byteLength > MAX_FILE_BYTES || bytesRead + buffer.byteLength > MAX_SCAN_BYTES) {
         report("growing-file", "A growing file exceeded the byte limit and was skipped."); return;
       }
-      bytesRead += buffer.byteLength; text = buffer.toString("utf8");
+      bytesRead += buffer.byteLength;
+      try { text = new TextDecoder("utf-8", { fatal: true }).decode(buffer); }
+      catch { report("invalid-encoding", "A file contains invalid UTF-8 and was skipped without altering its text."); return; }
     } catch { report("unreadable-file", "A JSONL file could not be read."); return; }
     const parsed = parseTranscript(text, { provider, machine, includePrompts: options.includePrompts ?? false });
     filesRead++;

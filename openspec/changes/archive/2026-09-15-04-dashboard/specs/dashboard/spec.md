@@ -55,10 +55,10 @@ completion feedback, and export with prompts off by default.
 
 ### Requirement: Accessible responsive design
 The interface SHALL use labeled controls, visible keyboard focus, semantic
-headings/tables and readable layouts at desktop and375px widths.
+headings/tables and readable layouts at desktop and 375px widths.
 
 #### Scenario: Narrow screen
-- **WHEN** the viewport is375px wide
+- **WHEN** the viewport is 375px wide
 - **THEN** navigation and forms remain usable without horizontal page overflow
 
 #### Scenario: Design provenance

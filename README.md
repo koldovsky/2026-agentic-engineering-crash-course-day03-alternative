@@ -6,7 +6,7 @@ Driven Development workshop** using Next.js, Vercel React guidance and OpenSpec.
 
 ## Start
 
-Requires **Node24.x**, npm and Git. No provider API key or cloud account needed.
+Requires **Node 24.x**, npm and Git. No provider API key or cloud account needed.
 
 ```bash
 npm ci
@@ -25,7 +25,7 @@ npm run collect -- --help
 ```
 
 Choose explicit local session directories and stable machine/member labels.
-The collector produces version1 JSON; manually transfer and import that file on
+The collector produces version 1 JSON; manually transfer and import that file on
 another machine. Prompt capture requires `--include-prompts`. Dashboard exports
 also omit prompts by default, with an explicit inclusion option.
 
@@ -37,7 +37,7 @@ Use completed sessions: updated snapshots can conflict with immutable stored dat
 
 Token categories do not overlap; reasoning is included in output. Costs are
 **API-equivalent estimates**, not Claude/Codex subscription invoices. The checked-in
-rate snapshot is dated2026-09-15. Unknown models/rates stay visibly unpriced.
+rate snapshot is dated 2026-09-15. Unknown models/rates stay visibly unpriced.
 Provider logs can be incomplete; imports report diagnostics. No model outputs,
 raw log files or absolute source paths are stored in the database or exports.
 

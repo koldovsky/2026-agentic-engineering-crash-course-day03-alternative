@@ -120,12 +120,12 @@ Pinned source baseline, commit **7f01a84**:
 USD per **one million tokens**, standard processing, checked 2026-09-15.
 Exact model IDs only; dated IDs and aliases need explicit verified entries.
 
-| Model ID | Uncached input | Cache read | 5-minute writes | 1-hour writes | Output |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `claude-sonnet-4-6` | 3.00 | 0.30 | 3.75 | 6.00 | 15.00 |
-| `claude-opus-4-6` | 5.00 | 0.50 | 6.25 | 10.00 | 25.00 |
-| `gpt-5.3-codex` | 1.75 | 0.175 | Unpriced | Unpriced | 14.00 |
-| `gpt-5.4` | 2.50 | 0.25 | Unpriced | Unpriced | 15.00 |
+| Model ID            | Uncached input | Cache read | 5-minute writes | 1-hour writes | Output |
+| ------------------- | -------------: | ---------: | --------------: | ------------: | -----: |
+| `claude-sonnet-4-6` |           3.00 |       0.30 |            3.75 |          6.00 |  15.00 |
+| `claude-opus-4-6`   |           5.00 |       0.50 |            6.25 |         10.00 |  25.00 |
+| `gpt-5.3-codex`     |           1.75 |      0.175 |        Unpriced |      Unpriced |  14.00 |
+| `gpt-5.4`           |           2.50 |       0.25 |        Unpriced |      Unpriced |  15.00 |
 
 Sources: [Claude pricing](https://platform.claude.com/docs/en/about-claude/pricing),
 [GPT-5.3-Codex](https://developers.openai.com/api/docs/models/gpt-5.3-codex),
@@ -140,3 +140,33 @@ tokens for unknown models and display unpriced coverage. A record with nonzero
 unsupported cache writes is unpriced. Do not infer a zero price from a missing
 rate, infer a model from quota names, or apply today's snapshot as historical
 billing truth. Keep the snapshot date and its assumptions visible.
+
+### Additional exact IDs verified during implementation
+
+The executable rate card also covers the following current models. USD/million:
+
+| Exact ID        | Input | Cache read | Standard write | 1h write | Output |
+| --------------- | ----: | ---------: | -------------: | -------: | -----: |
+| gpt-6-astra     |    10 |          1 |           12.5 | Unpriced |     50 |
+| gpt-5.6-sol     |     4 |        0.4 |              5 | Unpriced |     20 |
+| gpt-5.6-terra   |     2 |        0.2 |            2.5 | Unpriced |     12 |
+| gpt-5.6-luna    |   0.2 |       0.02 |           0.25 | Unpriced |    1.2 |
+| claude-sonnet-5 |     2 |        0.2 |            2.5 |        4 |     10 |
+| claude-opus-5   |     5 |        0.5 |           6.25 |       10 |     25 |
+
+Sources: [Astra](https://developers.openai.com/api/docs/models/gpt-6-astra),
+[Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol),
+[Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra),
+[Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna),
+[OpenAI prompt caching](https://developers.openai.com/api/docs/guides/prompt-caching),
+and [Claude pricing](https://platform.claude.com/docs/en/about-claude/pricing).
+GPT-5.6+ standard writes use a 30-minute TTL; the guide establishes their 1.25x
+input price and 0.1x read price. Fresh input excludes both reads and writes.
+The current Claude page cancels a previously announced Sonnet 5 price increase;
+the implemented snapshot uses its current$2/$10 input/output rates.
+
+Explicit dated IDs: claude-sonnet-4-5-20250929, claude-opus-4-5-20251101,
+claude-haiku-4-5-20251001. They use their documented 4.5 family rate, not substring
+matching. [Model IDs](https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions).
+The complete 17-entry table, source URLs and missing-rate representation live in
+`src/lib/pricing.ts` and the dashboard's Pricing view.

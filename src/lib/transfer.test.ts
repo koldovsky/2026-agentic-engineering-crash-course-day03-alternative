@@ -2,9 +2,17 @@ import { describe, it, expect } from "vitest";
 import { importData, exportData } from "./transfer";
 import { Ledger } from "./storage";
 import { sample } from "./test-fixtures";
-import { BundleSchema } from "./schema";
+import { BundleSchema, emptyBundle } from "./schema";
 
 describe("portable team exchange", () => {
+  it("allows an empty portable export to round-trip as a no-op", () => {
+    const ledger = new Ledger(":memory:");
+    try {
+      const bundle = JSON.parse(exportData(emptyBundle()));
+      expect(importData({ kind: "bundle", bundle, preview: true }, ledger)).toMatchObject({ usageCount: 0, promptCount: 0 });
+      expect(importData({ kind: "bundle", bundle }, ledger)).toMatchObject({ addedUsage: 0, addedPrompts: 0 });
+    } finally { ledger.close(); }
+  });
   it("previews without writes and imports two machines without duplicates", () => {
     const ledger = new Ledger(":memory:");
     try {

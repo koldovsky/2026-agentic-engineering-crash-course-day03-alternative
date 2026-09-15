@@ -26,7 +26,7 @@ flowchart LR
 
 Persistence, atomic import and CLI compatibility justify SQLite. Database defaults
 to `data/token-atlas.sqlite`, configurable with `TOKEN_ATLAS_DB`. Use parameterized
-SQL, primary keys, WAL, busy timeout and transactions. Node24 is required.
+SQL, primary keys, WAL, busy timeout and transactions. Node 24 is required.
 Synchronous SQL is acceptable for bounded local files; hosted concurrency needs a
 new spec. Cap bundles at 20,000 usage events and 20,000 prompts, HTTP bodies at
 20 MiB. `npm run dev` and `npm start` bind **127.0.0.1**. APIs reject non-loopback
@@ -47,6 +47,8 @@ Checked-in exact model IDs, USD/million rates, source URL and verification date.
 No fuzzy aliases or live fetching. Estimates use one rate snapshot, not historical
 invoices. Plan charges, discounts and unobserved priority/long-context multipliers
 are excluded and disclosed. Unknown prices show coverage and unpriced counts.
+Standard GPT-5.6+ cache writes use the documented 30-minute tier; absent write
+rates are represented as unavailable, not zero.
 
 ## ADR 004 — explicit collection and sharing
 
