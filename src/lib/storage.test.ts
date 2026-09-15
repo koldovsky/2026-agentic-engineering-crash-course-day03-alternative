@@ -6,6 +6,15 @@ import { Ledger, ImportConflictError } from "./storage";
 import { sample } from "./test-fixtures";
 
 describe("durable atomic ledger", () => {
+  it("canonicalizes equivalent ISO timestamp precision on reimport", () => {
+    const ledger = new Ledger(":memory:");
+    try {
+      ledger.merge(sample);
+      const equivalent = structuredClone(sample);
+      equivalent.usage[0].timestamp = equivalent.usage[0].timestamp.replace(".000Z", "Z");
+      expect(ledger.merge(equivalent).addedUsage).toBe(0);
+    } finally { ledger.close(); }
+  });
   it("survives reopen and counts repeated imports only once", () => {
     const directory = mkdtempSync(join(tmpdir(), "token-atlas-test-"));
     const path = join(directory, "ledger.sqlite");

@@ -32,3 +32,17 @@
   Vitest config to .mts to remove ambiguous module loading.
 - Seed is84 fictional usage events and84 prompts,42 sessions,4 members/5 machines.
 - API prices preserve unpriced coverage. Node24 SQLite uses no native addon.
+
+## 03 — local ingestion
+
+- Implemented the validated02-local-ingestion adapter and collector tasks after
+  archiving the ledger. Supported shapes/limits are documented in providers.md.
+- Added Claude repeated-ID/cache handling and human-only prompt filtering; Codex
+  response accounting and cumulative deltas with reset/coverage diagnostics.
+- CLI smoke: samples/claude + samples/codex produced3 usage records,2 prompts,
+  5,200 tokens. No MUST_NOT_BE_COLLECTED marker reached the output.
+- Verification: npm run check passed,63 tests across7 files. Includes oversize
+  files, symbolic-link skipping, malformed JSONL, excluded content and limits.
+- Review follow-up fixed canonical timestamps and transactional read snapshots.
+- Lockfile refreshed online after offline npm cache lacked an optional package.
+- Replay point: workshop-03-ingestion. No real session directories were read.

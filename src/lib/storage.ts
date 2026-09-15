@@ -36,11 +36,16 @@ export class Ledger {
   }
 
   read(includePrompts = true): Bundle {
-    const result = emptyBundle();
-    result.machines = this.db.prepare("SELECT payload FROM machines ORDER BY id").all().map(parsePayload);
-    result.usage = this.db.prepare("SELECT payload FROM usage ORDER BY machine_id, provider, id").all().map(parsePayload);
-    if (includePrompts) result.prompts = this.db.prepare("SELECT payload FROM prompts ORDER BY machine_id, provider, id").all().map(parsePayload);
-    return BundleSchema.parse(result);
+    this.db.exec("BEGIN");
+    try {
+      const result = emptyBundle();
+      result.machines = this.db.prepare("SELECT payload FROM machines ORDER BY id").all().map(parsePayload);
+      result.usage = this.db.prepare("SELECT payload FROM usage ORDER BY machine_id, provider, id").all().map(parsePayload);
+      if (includePrompts) result.prompts = this.db.prepare("SELECT payload FROM prompts ORDER BY machine_id, provider, id").all().map(parsePayload);
+      const bundle = BundleSchema.parse(result);
+      this.db.exec("COMMIT");
+      return bundle;
+    } catch (error) { this.db.exec("ROLLBACK"); throw error; }
   }
 
   merge(input: unknown): MergeResult {

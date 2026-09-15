@@ -6,6 +6,7 @@ const id = z.string().min(1).max(192).regex(/^[A-Za-z0-9][A-Za-z0-9._:@-]*$/);
 const label = z.string().trim().min(1).max(100).regex(/^[^\x00-\x1f\x7f]+$/);
 // Keeps worst-case sums across 20,000 records below Number.MAX_SAFE_INTEGER.
 const count = z.number().int().min(0).max(1_000_000_000);
+const timestamp = z.iso.datetime().transform((value) => new Date(value).toISOString());
 export const ProviderSchema = z.enum(["claude-code", "codex"]);
 export const TokensSchema = z.strictObject({
   input: count, cacheRead: count, cacheWrite: count, cacheWrite1h: count,
@@ -14,7 +15,7 @@ export const TokensSchema = z.strictObject({
 export const MachineSchema = z.strictObject({ id, label, member: label });
 const common = {
   id, machineId: id, provider: ProviderSchema, sessionId: id,
-  timestamp: z.iso.datetime(),
+  timestamp,
 };
 export const UsageEventSchema = z.strictObject({
   ...common, model: z.string().min(1).max(120), tokens: TokensSchema,
@@ -23,7 +24,7 @@ export const PromptEventSchema = z.strictObject({
   ...common, text: z.string().min(1).max(100_000),
 });
 export const BundleSchema = z.strictObject({
-  schemaVersion: z.literal(1), exportedAt: z.iso.datetime(),
+  schemaVersion: z.literal(1), exportedAt: timestamp,
   machines: z.array(MachineSchema).max(100),
   usage: z.array(UsageEventSchema).max(MAX_RECORDS),
   prompts: z.array(PromptEventSchema).max(MAX_RECORDS),
