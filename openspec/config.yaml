@@ -1,4 +1,12 @@
 schema: spec-driven
+context: |
+  Token Atlas: local-first team token usage and human prompts dashboard.
+  Node24, Next.js App Router, TypeScript, React, SQLite, npm lockfile.
+  Read docs/PRD.md, docs/architecture.md, docs/data-contract.md, AGENTS.md.
+  No automatic scanning or model outputs. Explicit collection, opt-in prompts.
+  Atomic idempotent v1 JSON exchange. API-equivalent USD estimates only.
+  Unknown models unpriced. Synthetic fixtures. Claude Design access pending.
+  Workshop: 90-minute guided demo with actual checkpoints in docs/workshop/.
 
 # Project context (optional)
 # This is shown to AI when creating artifacts.
