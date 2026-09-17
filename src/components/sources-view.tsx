@@ -2,6 +2,8 @@ import { HardDrive, LockKeyhole, Terminal } from "lucide-react";
 import type { MachineSummary, Source } from "@/lib/queries";
 import { Avatar, dateTime, number, ProviderBadge, SectionHeading } from "./ui";
 import { ImportPanel } from "./transfer-controls";
+import { MachineImportPanel } from "./machine-import-panel";
+import { MachineDisplayEditor } from "./machine-display-editor";
 
 export function SourcesView({
   machines,
@@ -12,6 +14,7 @@ export function SourcesView({
 }) {
   return (
     <>
+      <MachineImportPanel source={source} />
       <div className="sources-grid">
         <ImportPanel source={source} />
         <section className="card source-guide">
@@ -24,20 +27,20 @@ export function SourcesView({
               <li>
                 <span>1</span>
                 <div>
-                  <strong>Collect on each machine</strong>
+                  <strong>Import this computer</strong>
                   <p>
-                    Choose a completed Claude Code or Codex session, or collect
-                    an explicit folder with the local CLI.
+                    Use the button above to save local usage. Optional settings
+                    let you choose smaller project or date folders.
                   </p>
                 </div>
               </li>
               <li>
                 <span>2</span>
                 <div>
-                  <strong>Preview, then import</strong>
+                  <strong>Bring a file from another machine</strong>
                   <p>
-                    Check the record counts and diagnostics before saving
-                    anything to your workspace.
+                    Use the file importer to preview a teammate’s export or a
+                    completed transcript before saving it.
                   </p>
                 </div>
               </li>
@@ -83,9 +86,15 @@ export function SourcesView({
         >
           <span className="count-badge">{machines.length} machines</span>
         </SectionHeading>
+        <p className="attribution-explainer">
+          Member is the person assigned to the usage; provider is the
+          application that recorded it. One person can use both Claude Code and
+          Codex. If a member is shown as Local user, set their display name
+          below.
+        </p>
         {machines.length ? (
           <div className="table-scroll">
-            <table>
+            <table className="machine-table">
               <caption className="sr-only">
                 Imported machines and observed activity
               </caption>
@@ -101,15 +110,30 @@ export function SourcesView({
               </thead>
               <tbody>
                 {machines.map((machine) => (
-                  <tr key={machine.id}>
+                  <tr key={machine.id} data-testid={`machine-${machine.id}`}>
                     <td>
                       <div className="machine-name">
                         <HardDrive size={17} />
                         <div>
                           <strong>{machine.label}</strong>
-                          <small>{machine.id}</small>
                         </div>
                       </div>
+                      {source === "local" ? (
+                        <MachineDisplayEditor machine={machine} />
+                      ) : null}
+                      <details className="identity-details">
+                        <summary>Imported attribution</summary>
+                        <dl>
+                          <dt>Member in original import</dt>
+                          <dd>{machine.importedMember}</dd>
+                          <dt>Computer in original import</dt>
+                          <dd>{machine.importedLabel}</dd>
+                          <dt>Machine ID</dt>
+                          <dd>
+                            <code>{machine.id}</code>
+                          </dd>
+                        </dl>
+                      </details>
                     </td>
                     <td>
                       <div className="session-member">
@@ -144,8 +168,8 @@ export function SourcesView({
           <div className="sources-empty">
             <HardDrive size={25} />
             <p>
-              No machines imported yet. Preview a usage file above to get
-              started.
+              No machines imported yet. Import this computer above, or preview a
+              usage file to get started.
             </p>
           </div>
         )}

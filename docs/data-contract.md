@@ -24,6 +24,11 @@ are ignored. Conflicting immutable payloads or machine attribution abort the
 entire transaction. Later opt-in prompt imports can enrich earlier usage-only
 imports. Same machine must keep consistent ID, label and member.
 
+Local display names are separate preferences keyed by machine ID, outside portable
+v1. They change dashboard presentation and member filtering, not the stored import
+payload. Exports retain the original attribution, and repeat imports remain
+idempotent. Resetting a display name does not delete or reclassify any usage.
+
 Exports contain only normalized allowlisted fields. Default `prompts: []`.
 Portable import is all-or-nothing. Raw JSONL can salvage valid lines with visible
 invalid/skipped-line diagnostics. Canonical executable contract: `src/lib/schema.ts`.

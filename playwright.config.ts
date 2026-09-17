@@ -22,6 +22,9 @@ export default defineConfig({
         `acceptance-${Date.now()}.sqlite`,
       ),
       NEXT_TELEMETRY_DISABLED: "1",
+      // Browser acceptance must only read the checked-in synthetic provider logs.
+      CLAUDE_CONFIG_DIR: resolve("samples/machine-import/claude"),
+      CODEX_HOME: resolve("samples/machine-import/codex"),
     },
   },
 });

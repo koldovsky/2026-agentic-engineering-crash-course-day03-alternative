@@ -44,6 +44,28 @@ function humanText(entry: JsonObject): string | undefined {
   return text.trim().length > 0 && !isGeneratedText(text) ? text : undefined;
 }
 
+function knownGeneratedInput(entry: JsonObject): boolean {
+  const message = object(entry.message);
+  if ([entry, message].some((value) => {
+    if (!value) return false;
+    if (["isMeta", "isCompactSummary", "isSidechain", "isSynthetic", "synthetic"].some((key) => value[key] === true)) return true;
+    if (["teamName", "parent_tool_use_id", "parentToolUseId", "agentId", "agent_id", "sourceToolAssistantUUID"].some((key) => typeof value[key] === "string" && value[key].length > 0)) return true;
+    return ["origin", "source"].some((key) => {
+      const detail = object(value[key]);
+      const kind = detail ? detail.type ?? detail.kind ?? detail.source : value[key];
+      return ["system", "developer", "assistant", "tool", "subagent"].includes(String(kind));
+    });
+  })) return true;
+  const content = message?.content;
+  if (typeof content === "string") return isGeneratedText(content);
+  if (!Array.isArray(content) || !content.length) return false;
+  return content.some((block) => object(block)?.type === "tool_result")
+    || content.every((block) => {
+      const item = object(block);
+      return item?.type === "text" && typeof item.text === "string" && isGeneratedText(item.text);
+    });
+}
+
 export function parseClaude(lines: SourceLine[], context: ParseContext): void {
   const fileSession = lines.map(({ value }) => value.sessionId).find((value) => identifier(value));
   const firstEntry = lines[0]?.value;
@@ -73,7 +95,8 @@ export function parseClaude(lines: SourceLine[], context: ParseContext): void {
     } else if (entry.type === "user" && context.options.includePrompts) {
       const text = fileSubagent ? undefined : humanText(entry);
       if (text === undefined) {
-        context.reportOnce("excluded_claude_prompts", "Tool, generated, subagent or ambiguous user entries were excluded from human prompts.", line);
+        if (fileSubagent || knownGeneratedInput(entry)) context.reportOnce("generated_claude_prompts", "Known tool, generated or subagent inputs were excluded from human prompts.", line);
+        else context.reportOnce("excluded_claude_prompts", "Ambiguous or unsupported user entries were excluded from human prompts; prompt coverage may be incomplete.", line);
         continue;
       }
       const timestamp = context.timestamp(entry.timestamp, line);

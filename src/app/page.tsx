@@ -4,7 +4,7 @@ import { ZodError } from "zod";
 import { summarize } from "@/lib/aggregate";
 import { assertLocalRequest } from "@/lib/http";
 import {
-  getBundle,
+  getDisplayBundle,
   parseQuery,
   queryPrompts,
   queryMachines,
@@ -72,7 +72,7 @@ export default async function Home({
       </DashboardShell>
     );
   }
-  const bundle = getBundle(query.source, view === "prompts");
+  const bundle = getDisplayBundle(query.source, view === "prompts");
   if (view === "sources") {
     return (
       <DashboardShell query={query} view={view}>

@@ -13,6 +13,16 @@ const MAX_FILES = 2_000;
 const MAX_ENTRIES = 10_000;
 const MAX_SCAN_BYTES = 100 * 1024 * 1024;
 
+export class CollectionConflictError extends Error {}
+export class CollectionLimitError extends Error {}
+
+// These notices explain attribution, pricing or deduplication, not omitted data.
+const COMPLETE_NOTICES = new Set([
+  "session_fallback", "identity_fallback", "unknown_model", "usage_updated",
+  "modern_precedence", "unpriced_cache_writes", "cache_duration_assumed",
+  "claude_reported_usage", "generated_claude_prompts", "generated_codex_prompts",
+]);
+
 /** No defaults or implicit home scans: every root is an explicit caller choice. */
 export async function collect(options: CollectionOptions) {
   const machine = MachineSchema.parse(options.machine);
@@ -26,7 +36,15 @@ export async function collect(options: CollectionOptions) {
   let bytesRead = 0;
   let duplicates = 0;
   let exhausted = false;
-  const report = (code: string, message: string) => { if (diagnostics.length < 200) diagnostics.push({ code, message }); };
+  let partial = false;
+  const report = (code: string, message: string, line?: number) => {
+    if (!COMPLETE_NOTICES.has(code)) partial = true;
+    if (diagnostics.length < 199) diagnostics.push({ code, message, ...(line === undefined ? {} : { line }) });
+    else if (diagnostics.length === 199) {
+      partial = true;
+      diagnostics.push({ code: "diagnostic_limit", message: "Additional diagnostics were omitted. Coverage may be incomplete." });
+    }
+  };
 
   async function walk(path: string, provider: Provider, depth: number) {
     if (exhausted) return;
@@ -65,23 +83,23 @@ export async function collect(options: CollectionOptions) {
     const parsed = parseTranscript(text, { provider, machine, includePrompts: options.includePrompts ?? false });
     filesRead++;
     for (const diagnostic of parsed.diagnostics) {
-      if (diagnostics.length < 200) diagnostics.push(diagnostic);
+      report(diagnostic.code, diagnostic.message, diagnostic.line);
     }
     for (const record of parsed.bundle.usage) {
       const key = recordKey(record); const previous = usage.get(key);
-      if (previous && JSON.stringify(previous) !== JSON.stringify(record)) throw new Error("Conflicting session snapshots. Collect completed sessions without overlapping copies.");
+      if (previous && JSON.stringify(previous) !== JSON.stringify(record)) throw new CollectionConflictError("Conflicting session snapshots. Collect completed sessions without overlapping copies.");
       if (previous) duplicates++; else usage.set(key, record);
     }
     for (const record of parsed.bundle.prompts) {
       const key = recordKey(record); const previous = prompts.get(key);
-      if (previous && JSON.stringify(previous) !== JSON.stringify(record)) throw new Error("Conflicting prompt identities in selected files.");
+      if (previous && JSON.stringify(previous) !== JSON.stringify(record)) throw new CollectionConflictError("Conflicting prompt identities in selected files.");
       if (previous) duplicates++; else prompts.set(key, record);
     }
-    if (usage.size > MAX_RECORDS || prompts.size > MAX_RECORDS) throw new Error("Collection exceeds 20,000 records. Choose a smaller date folder.");
+    if (usage.size > MAX_RECORDS || prompts.size > MAX_RECORDS) throw new CollectionLimitError("Collection exceeds 20,000 records. Choose a smaller date folder.");
   }
   for (const root of options.roots) await walk(resolve(root.path), root.provider, 0);
   bundle.usage = [...usage.values()]; bundle.prompts = [...prompts.values()];
-  return { bundle: BundleSchema.parse(bundle), diagnostics, filesRead, duplicates };
+  return { bundle: BundleSchema.parse(bundle), diagnostics, filesRead, duplicates, partial };
 }
 
 async function readBoundedFile(path: string): Promise<Buffer> {

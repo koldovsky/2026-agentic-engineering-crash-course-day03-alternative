@@ -31,6 +31,8 @@ uploading logs to a service. Contributors need a simple file exchange workflow.
 | P10 | Explicit synthetic demo separate from real persisted usage                           | Demo/local switch             |
 | P11 | Apply supplied Claude Design system after contents can be inspected                  | Pending accessible reference  |
 | P12 | Save SDD steps, decisions, failures, verification and replay points                  | Guide, build log and Git tags |
+| P13 | Import selected local provider folders in one click, with visible partial coverage | Machine import API/UI tests  |
+| P14 | Show readable session context and editable local display names without altering imported identities | Alias persistence/export/reimport and browser checks |
 
 ## Product rules
 
@@ -41,7 +43,12 @@ uploading logs to a service. Contributors need a simple file exchange workflow.
   of output and is never counted or priced again.
 - Stable machine IDs persist across exports. Member labels are self-reported,
   not authenticated identities. Transfers are voluntary, manual team sharing.
-- No home scan on page load. CLI collection runs only when invoked. Raw records
+- New one-click imports use `Local user` until a member is supplied. A server OS
+  account is not a person's identity. Local display names can personalize existing
+  imports; exports retain original attribution. Provider is independent of names.
+- Session rows use observed time and computer context. Full IDs remain in details;
+  no session title or project name is invented from the current v1 contract.
+- No home scan on page load. Collection runs only after an explicit CLI or browser action. Raw records
   and model outputs are never persisted. Prompt collection is selectable.
 - Prompt export is explicit. No false promise of automatic secret redaction.
 - Empty/error/unpriced states and import diagnostics are visible. Demo data never

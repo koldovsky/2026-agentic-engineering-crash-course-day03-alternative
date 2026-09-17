@@ -1,7 +1,9 @@
 # Provider formats and pricing research
 
-Verified **2026-09-15** against official documentation and public source code.
-No real user sessions were read. Local JSONL is an implementation format, not a
+Initial research verified **2026-09-15** against official documentation and public
+source code without reading real user sessions. The **2026-09-17** Codex prompt
+diagnosis additionally inspected record shapes in one known local rollout, without
+printing message text or copying it into fixtures. Local JSONL is an implementation format, not a
 versioned public API. The ingestion spec and synthetic regression fixtures define
 the supported subset; this research does not imply support for every version.
 
@@ -97,10 +99,30 @@ incomplete histories need a visible coverage limitation.
 
 ### Human prompts and identity
 
-Use `type: "event_msg"`, `payload.type: "user_message"`, `payload.message`.
+Legacy history uses `type: "event_msg"`, `payload.type: "user_message"`,
+`payload.message`. Current paginated history instead persists
+`event_msg` / `item_completed` with `payload.item.type: "UserMessage"`.
+Token Atlas supports both. Completed user items provide `id`, optional `client_id`
+and `content`; only `{ type: "text", text }` blocks are concatenated, in order,
+without adding separators. Images, local images and other supported non-text
+references are not prompt text. Malformed/unknown content is excluded with a
+content-free coverage diagnostic. Generated-origin metadata or generated text in
+any supported input boundary excludes that candidate.
+
+This distinction was rechecked on **2026-09-17** against upstream
+[rollout persistence policy](https://github.com/openai/codex/blob/main/codex-rs/rollout/src/policy.rs),
+[completed user items](https://github.com/openai/codex/blob/main/codex-rs/protocol/src/items.rs),
+[user input types](https://github.com/openai/codex/blob/main/codex-rs/protocol/src/user_input.rs)
+and the [legacy event bridge](https://github.com/openai/codex/blob/main/codex-rs/protocol/src/legacy_events.rs).
+The policy stores completed items for paginated history and legacy user-message
+events for legacy history. Merely testing an old fixture did not establish current
+app compatibility; synthetic fixtures now cover both formats and the recovery flow.
+
 Do not collect `response_item` messages merely because their role is `user`:
 they can duplicate the prompt or contain injected model context. Skip sessions
-identified as subagents for human prompt collection while keeping their usage.
+identified as subagents or internal guardian/memory tasks for human prompt
+collection while keeping their usage. Explicit unknown thread/internal origins
+remain excluded with a coverage diagnostic.
 The event format can also carry system-origin input, so unsupported origins
 must not be asserted to be verified human authorship.
 
@@ -108,6 +130,10 @@ must not be asserted to be verified human authorship.
 the root session. `client_id` and rollout `ordinal` are optional. Legacy prompt
 IDs require a deterministic fallback that preserves repeated submissions and
 remains stable on re-import. Moving a file must not change normalized identity.
+Completed items use client identity when present, otherwise item identity, then
+ordinal/snapshot fallback. When both formats share a client identity, the eligible
+legacy representation retains its timestamp and identity, preserving existing
+imports. Equal text from distinct submissions is not deduplicated by text alone.
 
 Pinned source baseline, commit **7f01a84**:
 

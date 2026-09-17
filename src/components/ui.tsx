@@ -4,6 +4,7 @@ import { ArrowUpRight, Database, Sparkles } from "lucide-react";
 import type { SummaryMetrics } from "@/lib/aggregate";
 import type { ParsedQuery } from "@/lib/queries";
 import type { Provider } from "@/lib/schema";
+import { ProviderMark } from "./provider-mark";
 
 export const views = [
   "overview",
@@ -87,7 +88,7 @@ export function ProviderBadge({ provider }: { provider: Provider }) {
   return (
     <span className={`provider-badge provider-${provider}`}>
       <span className="provider-mark" aria-hidden="true">
-        {provider === "claude-code" ? "✳" : "◈"}
+        <ProviderMark provider={provider} size={12} />
       </span>
       {providerName(provider)}
     </span>

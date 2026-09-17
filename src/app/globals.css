@@ -1072,7 +1072,11 @@ tbody tr:hover {
   width: 28px;
   height: 28px;
   border-radius: 7px;
-  font-size: 22px;
+  line-height: 0;
+}
+.model-icon > svg,
+.provider-mark > svg {
+  display: block;
 }
 .model-icon.claude-code {
   background: #f6ece5;
@@ -1222,6 +1226,116 @@ tbody tr:hover {
 .sessions-card table {
   min-width: 800px;
 }
+.session-title {
+  display: block;
+  color: #46556b;
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 1.5;
+}
+.machine-table {
+  min-width: 950px;
+}
+.machine-table td:nth-child(2) {
+  min-width: 224px;
+}
+.machine-table td:nth-child(3) {
+  min-width: 170px;
+}
+.machine-table td,
+.sessions-card td {
+  vertical-align: top;
+}
+.machine-table .session-member,
+.sessions-card .session-member {
+  align-items: flex-start;
+}
+.session-context {
+  display: block;
+  max-width: 32ch;
+  margin-top: 4px;
+  color: #65748a;
+  font-size: 11px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.identity-details {
+  margin-top: 7px;
+  width: 260px;
+  max-width: 100%;
+  white-space: normal;
+  font-size: 11px;
+}
+.identity-details summary,
+.machine-display-editor summary {
+  color: #46556b;
+  cursor: pointer;
+  font-weight: 550;
+}
+.identity-details dl {
+  margin: 8px 0;
+  padding: 10px;
+  background: #f5f7fa;
+  border-radius: 6px;
+}
+.identity-details dt {
+  margin-top: 8px;
+  color: #46556b;
+  font-weight: 600;
+}
+.identity-details dt:first-child {
+  margin-top: 0;
+}
+.identity-details dd {
+  margin: 3px 0 0;
+  overflow-wrap: anywhere;
+}
+.attribution-explainer {
+  margin: 0;
+  padding: 0 20px 16px;
+  color: #65748a;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.machine-display-editor {
+  margin-top: 10px;
+  width: 260px;
+  white-space: normal;
+  font-size: 11px;
+}
+.machine-display-editor form {
+  margin-top: 12px;
+}
+.machine-display-editor fieldset {
+  display: grid;
+  gap: 12px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.machine-display-editor .field {
+  min-width: 0;
+}
+.machine-display-editor input {
+  width: 100%;
+  min-width: 0;
+}
+.machine-display-editor .muted {
+  margin: 0;
+  line-height: 1.6;
+}
+.display-name-actions {
+  display: grid;
+  gap: 8px;
+}
+[data-testid^="machine-"] .machine-name strong,
+[data-testid^="machine-"] .session-member > span {
+  display: block;
+  max-width: 260px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .session-model {
   max-width: 210px;
   font-size: 10px;
@@ -1243,8 +1357,12 @@ tbody tr:hover {
   white-space: nowrap;
 }
 .provider-mark {
-  font-size: 12px;
-  line-height: 1;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  line-height: 0;
 }
 .provider-claude-code {
   background: #fcf6f1;
@@ -1332,6 +1450,86 @@ tbody tr:hover {
 }
 
 /* Transfer and source guidance */
+.machine-import {
+  margin-bottom: 25px;
+}
+.machine-import-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.machine-import-providers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.machine-import-provider {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.machine-import-provider .checkbox-field {
+  align-items: flex-start;
+  color: #46556b;
+  font-size: 13px;
+  font-weight: 550;
+}
+.machine-import-provider input[type="checkbox"] {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+.machine-import-path {
+  display: block;
+  margin-top: 9px;
+  color: #65748a;
+  font-size: 11px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.machine-import-settings > summary {
+  width: fit-content;
+  color: #476cab;
+  font-size: 12px;
+  list-style: none;
+}
+.machine-import-settings > summary::before {
+  display: inline-block;
+  width: 16px;
+  content: "+";
+  font-weight: 600;
+}
+.machine-import-settings[open] > summary::before {
+  content: "−";
+}
+.machine-import-settings .form-grid {
+  margin-top: 16px;
+}
+.machine-import-fields > .muted,
+.machine-import-settings .muted {
+  font-size: 11px;
+  line-height: 1.7;
+}
+.machine-import-settings .muted {
+  margin-top: 10px;
+}
+.machine-import-source-result {
+  margin-top: 12px;
+}
+@media (max-width: 640px) {
+  .machine-import-providers {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .machine-import-fields > .button {
+    width: 100%;
+    white-space: normal;
+  }
+}
 .sources-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
@@ -1431,6 +1629,11 @@ tbody tr:hover {
   border-color: #d8e9dc;
   background: #f2f8f3;
   color: #568262;
+}
+.notice-warning {
+  border-color: #ead7ae;
+  background: #fffbef;
+  color: #826022;
 }
 .preview-counts {
   display: flex;

@@ -1,0 +1,4 @@
+{"type":"session_meta","timestamp":"2026-09-15T12:00:00Z","payload":{"id":"machine-fixture-codex","source":"cli"}}
+{"type":"turn_context","timestamp":"2026-09-15T12:00:00Z","payload":{"turn_id":"machine-fixture-turn","model":"gpt-5.4"}}
+{"type":"event_msg","timestamp":"2026-09-15T12:00:00Z","payload":{"type":"user_message","message":"Synthetic machine import: verify the saved totals."}}
+{"type":"token_usage_record","timestamp":"2026-09-15T12:00:01Z","payload":{"response_id":"machine-fixture-response","thread_id":"machine-fixture-codex","turn_id":"machine-fixture-turn","usage":{"input_tokens":2000,"cached_input_tokens":1000,"output_tokens":300,"reasoning_output_tokens":100}}}

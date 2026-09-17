@@ -29,6 +29,21 @@ const parseCodex = (...entries: unknown[]) => parseTranscript(jsonl(...entries),
 const codes = (result: ReturnType<typeof parseTranscript>) => result.diagnostics.map((diagnostic) => diagnostic.code);
 
 describe("Claude transcript normalization", () => {
+  it("distinguishes expected generated exclusions from uncertain human-input loss", () => {
+    const generated = parseTranscript(jsonl(claudeUsage(), claudePrompt(),
+      claudePrompt([{ type: "tool_result", content: "EXCLUDED_TOOL_TEXT" }], { uuid: "tool" }),
+      claudePrompt("<system-reminder>EXCLUDED_GENERATED_TEXT</system-reminder>", { uuid: "generated" }),
+      claudePrompt("EXCLUDED_SYSTEM_TEXT", { uuid: "system", origin: { type: "system" } }),
+    ), options);
+    expect(generated.bundle.prompts).toHaveLength(1);
+    expect(codes(generated)).toContain("generated_claude_prompts");
+    expect(codes(generated)).not.toContain("excluded_claude_prompts");
+    for (const ambiguous of [claudePrompt({ unrecognized: "EXCLUDED_UNKNOWN_TEXT" }), claudePrompt("EXCLUDED_UNKNOWN_TEXT", { origin: "unknown-origin" })]) {
+      const result = parseTranscript(jsonl(claudeUsage(), ambiguous), options);
+      expect(codes(result)).toContain("excluded_claude_prompts");
+      expect(result.bundle.prompts).toEqual([]);
+    }
+  });
   it("deduplicates assistant blocks without retaining their content", () => {
     const first = claudeUsage();
     const second = { ...first, uuid: "different-block", timestamp: "2026-09-15T12:00:01Z" };
@@ -117,6 +132,17 @@ describe("Claude transcript normalization", () => {
 });
 
 describe("Codex transcript normalization", () => {
+  it("distinguishes known generated events from ambiguous input origins and malformed text", () => {
+    const generated = parseCodex(codexMeta(), codexContext(), codexModern(), codexPrompt(), codexPrompt({ message: "<system-reminder>EXCLUDED_GENERATED_TEXT</system-reminder>" }), codexPrompt({ message: "EXCLUDED_SYSTEM_TEXT", origin: "system" }));
+    expect(generated.bundle.prompts).toHaveLength(1);
+    expect(codes(generated)).toContain("generated_codex_prompts");
+    expect(codes(generated)).not.toContain("excluded_codex_prompts");
+    for (const ambiguous of [codexPrompt({ message: {} }), codexPrompt({ origin: "unknown-origin" })]) {
+      const result = parseCodex(codexMeta(), codexContext(), codexModern(), ambiguous);
+      expect(codes(result)).toContain("excluded_codex_prompts");
+      expect(result.bundle.prompts).toEqual([]);
+    }
+  });
   it("counts legacy cumulative differences once and ignores last-request fields", () => {
     const result = parseCodex(codexMeta(), codexContext(), codexLegacy(), codexLegacy(), codexLegacy(codexTokens({ input_tokens: 160, cached_input_tokens: 30, output_tokens: 25, reasoning_output_tokens: 8 })));
     expect(result.bundle.usage).toHaveLength(2);

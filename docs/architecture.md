@@ -58,10 +58,29 @@ for provider/member/machine; portable bundles carry those identities. Strict sch
 rejects absolute source paths, outputs and opaque metadata fields. Human prompts
 render as text. Default exports omit prompts; inclusion is an explicit choice.
 
+The browser's machine-import endpoint supplies OS/environment defaults without
+filesystem traversal. Its guarded POST collects selected absolute local roots,
+one per provider, then merges all normalized records in one transaction. Per-root
+budgets and a durable partial flag expose skipped content independently of capped
+diagnostics. Browser preferences retain attribution/paths, never prompt consent.
+
 ## ADR 005 — isolated demo
 
 Synthetic demo data appears only on explicit demo view, never silently inserted
 into SQLite. Local usage has an honest empty state linking to import and demo.
+
+## ADR 006 — local display names preserve portable attribution
+
+Store optional member/computer display names separately from immutable imported
+machine payloads. Presentation queries apply overrides consistently to filters,
+summaries, source lists and human-prompt context. Portable export uses the original
+bundle, so an old file can be imported again without conflict or duplicate usage.
+Guard display-name updates/reset with the same loopback/same-origin API boundary.
+
+New machine-import defaults use `Local user`; existing stable machines reuse their
+original attribution. Legacy `CodexSandboxOffline`/`CodexSandboxOnline` member labels
+have a neutral presentation fallback until explicitly named. Source details retain
+the original values. This is not authentication or a provider classifier.
 
 ## Quality gates
 

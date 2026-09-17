@@ -29,6 +29,26 @@ Next.js 16.3+ supplies the former next-best-practices reference this way.
 The user's explicit request to plan and build authorizes this initial implementation
 sequence. In the workshop itself, show a human review between proposal and apply.
 
+## Visual acceptance for UI changes
+
+- Define observable visual criteria for the affected components before editing.
+  Check alignment, spacing, typography, icon artwork, clipping, contrast and states.
+- After implementation, inspect the rendered UI at desktop and 375px. Include
+  representative consumers when changing a shared component. Use synthetic data.
+  Wait for visible loaded components before capturing; a loading skeleton or
+  hidden server-rendered text is not evidence of the intended screen.
+- Inspect both page context and actual-size component crops. A full-page image
+  scaled to fit the viewer can hide local defects. Capturing a screenshot is not
+  evidence that it was inspected. Use an independent visual reviewer when available.
+- Compare visible artwork, not only CSS declarations or element boxes. For a
+  reported geometric defect, add a focused browser assertion and demonstrate it
+  rejects a controlled bad layout. Do not add tests that only restate CSS values.
+- Record functional, browser and visual evidence separately in the build log:
+  view/state/viewport, inspected artifacts, findings, fixes and uninspected scope.
+  Review new screenshot baselines before accepting them; never approve a baseline
+  merely because it matches the current implementation. Passing functional tests
+  alone does not establish visual quality.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know

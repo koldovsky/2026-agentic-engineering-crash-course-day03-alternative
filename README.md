@@ -14,11 +14,26 @@ npm run dev
 ```
 
 Open [Token Atlas locally](http://127.0.0.1:3000). Local usage starts empty; choose
-**Explore demo** for fictional team data or **Data sources** to import your files.
+**Explore demo** for fictional team data or **Data sources → Import from this
+computer** to import your local Claude Code and Codex usage in one click.
 The app binds to loopback and stores data in `data/token-atlas.sqlite`.
 To run the production build: `npm run build`, then `npm start`.
 
 ## Collect and share
+
+On **Data sources**, the selected local folders are shown above **Import from this
+computer**. Click once to collect and save usage locally. Names and folders are
+prefilled; optional settings let you change them and are remembered in this browser.
+Human prompts are off by default and require a fresh choice after reopening the
+page. Nothing is scanned until you click. Review any **Partial import** result for
+missing folders or limits; use smaller completed-session folders if necessary.
+
+To personalize existing names, use **Machines in this workspace → Edit display
+names**. Local display names do not alter export attribution or duplicate accounting.
+Session rows show observed time and computer context; full IDs remain in details.
+
+To share, export JSON and let a teammate preview/import it. The existing file
+importer and command-line collector are also available:
 
 ```bash
 npm run collect -- --help
@@ -43,8 +58,20 @@ raw log files or absolute source paths are stored in the database or exports.
 
 ## Workshop and specification workflow
 
+Day04 starts at the [`workshop-day04-start` tag](https://github.com/koldovsky/2026-agentic-engineering-crash-course-day03-alternative/tree/workshop-day04-start).
+It includes the working local app, lesson materials and the planned scoped-export
+exercise. The exercise implementation is left for participants.
+[Slides](https://koldovsky.github.io/2026-agentic-engineering-crash-course/#/day04) ·
+[Browser handout](https://koldovsky.github.io/2026-agentic-engineering-crash-course/day04-lab.html) ·
+[Materials ZIP](https://koldovsky.github.io/2026-agentic-engineering-crash-course/day04-materials.zip).
+Only synthetic fixtures ship with the lesson; local databases, imports and exports
+are excluded from the repository and the downloadable teaching package.
+
 - [90-minute guide and checkpoint replay](docs/workshop/guide.md)
 - [Presenter prompts and review exercises](docs/workshop/prompts.md)
+- [Day04: parallel subagents and independent verification](docs/workshop/day04/guide.md)
+- [Day04 prompts](docs/workshop/day04/prompts.md) · [homework](docs/workshop/day04/homework.md) · [evidence template](docs/workshop/day04/evidence-template.md)
+- [Day04 requirements and capability slicing](docs/workshop/day04/requirements.md) · [context packet](docs/workshop/day04/context-packet.md) · [test quality](docs/workshop/day04/quality.md)
 - [Actual build log and verification](docs/workshop/build-log.md)
 - [PRD](docs/PRD.md) · [Architecture and ADRs](docs/architecture.md)
 - [Living specs](openspec/specs) · [Changes and archive](openspec/changes)

@@ -4,12 +4,13 @@ import type { UsageFilters } from "./aggregate";
 import { makeDemoBundle } from "./demo";
 import { ProviderSchema, type Bundle, type Machine, type PromptEvent, type Provider } from "./schema";
 import { withLedger } from "./storage";
+import { withDisplayNames, type DisplayBundle, type MachineDisplayDetails } from "./display-names";
 
 export type Source = "local" | "demo";
 export type ParsedQuery = { source: Source; filters: UsageFilters; q: string; page: number };
 export type PromptItem = PromptEvent & { member: string; machineLabel: string };
 export type PromptPage = { items: PromptItem[]; total: number; page: number; pageSize: 20; totalPages: number };
-export type MachineSummary = Machine & { usage: number; sessions: number; providers: Provider[]; lastAt: string | null };
+export type MachineSummary = Machine & MachineDisplayDetails & { usage: number; sessions: number; providers: Provider[]; lastAt: string | null };
 
 const QuerySchema = z.object({
   source: z.enum(["local", "demo"]),
@@ -45,6 +46,13 @@ export function getBundle(source: Source, includePrompts = false): Bundle {
   const bundle = makeDemoBundle();
   if (!includePrompts) bundle.prompts = [];
   return bundle;
+}
+
+/** UI names are local preferences; getBundle remains the canonical transfer source. */
+export function getDisplayBundle(source: Source, includePrompts = false): DisplayBundle {
+  if (source === "local") return withLedger((ledger) =>
+    withDisplayNames(ledger.read(includePrompts), ledger.readDisplayNames()));
+  return withDisplayNames(getBundle(source, includePrompts));
 }
 
 function sessionKey(record: { machineId: string; provider: Provider; sessionId: string }): string {
@@ -86,7 +94,7 @@ export function queryPrompts(bundle: Bundle, query: ParsedQuery): PromptPage {
 }
 
 /** Usage-derived machine summaries deliberately omit prompt counts. */
-export function queryMachines(bundle: Bundle): MachineSummary[] {
+export function queryMachines(bundle: Bundle & Partial<Pick<DisplayBundle, "machineDisplayDetails">>): MachineSummary[] {
   const machines = new Map(bundle.machines.map((machine) => [machine.id, {
     machine, usage: 0, sessions: new Set<string>(), providers: new Set<Provider>(), lastAt: null as string | null,
   }]));
@@ -100,5 +108,8 @@ export function queryMachines(bundle: Bundle): MachineSummary[] {
   }
   return [...machines.values()].map(({ machine, usage, sessions, providers, lastAt }) => ({
     ...machine, usage, sessions: sessions.size, providers: [...providers].sort(), lastAt,
+    ...(bundle.machineDisplayDetails?.get(machine.id) ?? {
+      importedMember: machine.member, importedLabel: machine.label, hasDisplayOverride: false,
+    }),
   })).sort((a, b) => a.member.localeCompare(b.member) || a.label.localeCompare(b.label) || a.id.localeCompare(b.id));
 }

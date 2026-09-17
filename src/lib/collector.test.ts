@@ -6,6 +6,58 @@ import { collect, writeBundle } from "./collector";
 import { BundleSchema, MAX_FILE_BYTES } from "./schema";
 
 describe("explicit collector", () => {
+  it.each(["claude-code", "codex"] as const)("treats known generated exclusions as complete and ambiguous prompts as partial for %s", async (provider) => {
+    const directory = await mkdtemp(join(tmpdir(), "token-atlas-prompt-coverage-"));
+    const timestamp = "2026-09-15T12:00:00Z";
+    const records = provider === "claude-code" ? [
+      { type: "assistant", sessionId: "s1", timestamp, message: { id: "u1", model: "unknown-lab", usage: { input_tokens: 10, output_tokens: 1 } } },
+      { type: "user", sessionId: "s1", uuid: "p1", timestamp, message: { role: "user", content: "Synthetic human request" } },
+      { type: "user", sessionId: "s1", uuid: "tool", timestamp, message: { role: "user", content: [{ type: "tool_result", content: "EXCLUDED_TOOL_CONTENT" }] } },
+    ] : [
+      { type: "session_meta", timestamp, payload: { id: "s1", model: "unknown-lab" } },
+      { type: "token_usage_record", timestamp, payload: { response_id: "r1", thread_id: "s1", usage: { input_tokens: 10, output_tokens: 1 } } },
+      { type: "event_msg", timestamp, payload: { type: "user_message", client_id: "p1", message: "Synthetic human request" } },
+      { type: "event_msg", timestamp, payload: { type: "user_message", message: "<system-reminder>EXCLUDED_GENERATED_CONTENT</system-reminder>" } },
+    ];
+    try {
+      const file = join(directory, "session.jsonl");
+      await writeFile(file, records.map((entry) => JSON.stringify(entry)).join("\n"));
+      const options = { roots: [{ provider, path: directory }], machine: { id: "test", label: "Test", member: "Maya" }, includePrompts: true };
+      const complete = await collect(options);
+      expect(complete.partial).toBe(false);
+      expect(complete.bundle.usage).toHaveLength(1);
+      expect(complete.bundle.prompts.map((prompt) => prompt.text)).toEqual(["Synthetic human request"]);
+      expect(JSON.stringify(complete)).not.toContain("EXCLUDED_");
+      const ambiguous = provider === "claude-code"
+        ? { type: "user", sessionId: "s1", uuid: "ambiguous", timestamp, message: { role: "user", content: {} } }
+        : { type: "event_msg", timestamp, payload: { type: "user_message", message: {} } };
+      await writeFile(file, [...records, ambiguous].map((entry) => JSON.stringify(entry)).join("\n"));
+      expect((await collect(options)).partial).toBe(true);
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
+  it("keeps incomplete coverage visible when diagnostic output is capped", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "token-atlas-partial-"));
+    try {
+      await writeFile(join(directory, "broken.jsonl"), Array.from({ length: 210 }, () => "not-json").join("\n"));
+      const result = await collect({ roots: [{ provider: "codex", path: directory }], machine: { id: "test", label: "Test", member: "Maya" } });
+      expect(result.partial).toBe(true);
+      expect(result.diagnostics).toHaveLength(200);
+      expect(result.diagnostics.at(-1)?.code).toBe("diagnostic_limit");
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
+  it("does not label unknown-model attribution or duplicate copies as omitted usage", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "token-atlas-complete-"));
+    try {
+      const text = JSON.stringify({ type: "assistant", sessionId: "s1", timestamp: "2026-09-15T12:00:01Z", message: { id: "u1", usage: { input_tokens: 100, output_tokens: 20 } } });
+      await writeFile(join(directory, "one.jsonl"), text);
+      await writeFile(join(directory, "copy.jsonl"), text);
+      const result = await collect({ roots: [{ provider: "claude-code", path: directory }], machine: { id: "test", label: "Test", member: "Maya" } });
+      expect(result.partial).toBe(false);
+      expect(result.duplicates).toBe(1);
+      expect(result.bundle.usage[0].model).toBe("unknown");
+      expect(result.diagnostics.some((item) => item.code === "unknown_model")).toBe(true);
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
   it("reports invalid UTF-8 without silently changing human text", async () => {
     const directory = await mkdtemp(join(tmpdir(), "token-atlas-encoding-"));
     try {
@@ -25,6 +77,7 @@ describe("explicit collector", () => {
       await symlink(outside, join(root, "linked"), "junction");
       const result = await collect({ roots: [{ provider: "codex", path: root }], machine: { id: "test", label: "Test", member: "Maya" } });
       expect(result.filesRead).toBe(0);
+      expect(result.partial).toBe(true);
       expect(result.diagnostics.map((item) => item.code)).toEqual(expect.arrayContaining(["oversize-file", "symlink-skipped"]));
     } finally { await rm(directory, { recursive: true, force: true }); }
   });

@@ -21,18 +21,111 @@ function normalize(tokens: RawTokens): Tokens {
   return { input: tokens.input - tokens.read - tokens.write, cacheRead: tokens.read, cacheWrite: tokens.write, cacheWrite1h: 0, output: tokens.output, reasoning: tokens.reasoning };
 }
 
-function subagentSession(meta: JsonObject | undefined): boolean {
+function generatedSession(meta: JsonObject | undefined): boolean {
   if (!meta) return false;
   const source = meta.source;
   return Boolean(meta.parent_thread_id || meta.agent_path || meta.agent_role || meta.agent_nickname)
+    || ["subagent", "guardian_review", "memory_consolidation"].includes(String(meta.thread_source))
+    || ["guardian", "memory_consolidation"].includes(String(object(source)?.internal))
     || (typeof source === "string" && /subagent|agent_spawn|thread_spawn/i.test(source))
     || Boolean(object(source)?.subagent);
+}
+
+function knownGeneratedMetadata(value: JsonObject): boolean {
+  if (["isMeta", "isCompactSummary", "isSidechain", "isSynthetic", "synthetic"].some((key) => value[key] === true)) return true;
+  if (["teamName", "parent_tool_use_id", "parentToolUseId", "agentId", "agent_id", "sourceToolAssistantUUID"].some((key) => typeof value[key] === "string" && value[key].length > 0)) return true;
+  return ["origin", "source"].some((key) => {
+    const detail = object(value[key]);
+    const kind = detail ? detail.type ?? detail.kind ?? detail.source : value[key];
+    return ["system", "developer", "assistant", "tool", "subagent"].includes(String(kind));
+  });
+}
+
+function reportExcludedPrompt(context: ParseContext, line: number, generated: boolean): void {
+  if (generated) context.reportOnce("generated_codex_prompts", "Known generated or subagent inputs were excluded from human prompts.", line);
+  else context.reportOnce("excluded_codex_prompts", "Ambiguous or unsupported input events were excluded from human prompts; prompt coverage may be incomplete.", line);
+}
+
+function collectPrompts(lines: SourceLine[], context: ParseContext, meta: JsonObject | undefined): void {
+  if (!context.options.includePrompts) return;
+  const fileSession = meta?.id ?? meta?.session_id;
+  const isGeneratedSession = generatedSession(meta);
+  const unknownThreadSource = meta?.thread_source !== undefined && meta.thread_source !== null && meta.thread_source !== "user";
+  const source = object(meta?.source);
+  const unknownInternalSource = source !== undefined && Object.hasOwn(source, "internal")
+    && !["guardian", "memory_consolidation"].includes(String(source.internal));
+
+  // Keep the legacy representation first when a rollout also contains its
+  // completed-item equivalent. Existing imports then retain their timestamp.
+  for (const completed of [false, true]) {
+    for (const { value: entry, line } of lines) {
+      if (entry.type !== "event_msg") continue;
+      const payload = object(entry.payload);
+      const item = completed ? object(payload?.item) : undefined;
+      if (completed ? payload?.type !== "item_completed" || item?.type !== "UserMessage" : payload?.type !== "user_message") continue;
+      const boundaries = [entry, payload!, ...(item ? [item] : [])];
+      if (isGeneratedSession || unknownThreadSource || unknownInternalSource || boundaries.some(isSynthetic)) {
+        reportExcludedPrompt(context, line, isGeneratedSession || boundaries.some(knownGeneratedMetadata));
+        continue;
+      }
+
+      let text: unknown = payload!.message;
+      if (completed) {
+        if (!Array.isArray(item!.content)) {
+          reportExcludedPrompt(context, line, false);
+          continue;
+        }
+        const parts: string[] = [];
+        let unsupported = false;
+        let generated = false;
+        for (const value of item!.content) {
+          const block = object(value);
+          if (!block) { unsupported = true; break; }
+          if (isSynthetic(block)) {
+            generated = knownGeneratedMetadata(block);
+            unsupported = true;
+            break;
+          }
+          if (block.type === "text") {
+            if (typeof block.text !== "string") { unsupported = true; break; }
+            if (isGeneratedText(block.text)) { generated = true; unsupported = true; break; }
+            parts.push(block.text);
+          } else if (!["image", "local_image", "audio", "local_audio", "skill", "mention"].includes(String(block.type))) {
+            // Do not guess how to extract future/unknown text-bearing blocks.
+            unsupported = true;
+            break;
+          }
+        }
+        if (unsupported) {
+          reportExcludedPrompt(context, line, generated);
+          continue;
+        }
+        // Matches Codex's UserMessageItem::message; attachment payloads and
+        // local paths never enter normalized human prompt text.
+        text = parts.join("");
+      }
+      if (typeof text !== "string" || !text.trim() || isGeneratedText(text)) {
+        reportExcludedPrompt(context, line, typeof text === "string" && isGeneratedText(text));
+        continue;
+      }
+      const timestamp = context.timestamp(entry.timestamp, line);
+      if (!timestamp) continue;
+      const sessionId = context.session(completed ? payload!.thread_id ?? fileSession : fileSession, line);
+      const clientId = identifier(completed ? item!.client_id : payload!.client_id);
+      const itemId = completed ? identifier(item!.id) : undefined;
+      const ordinal = typeof entry.ordinal === "number" && Number.isSafeInteger(entry.ordinal) && entry.ordinal >= 0 ? entry.ordinal : undefined;
+      const id = clientId ? `codex-prompt-${hash(sessionId, clientId)}`
+        : itemId ? `codex-prompt-${hash(sessionId, "item", itemId)}`
+          : ordinal !== undefined ? `codex-prompt-${hash(sessionId, "ordinal", ordinal)}`
+            : context.fallbackId("codex-prompt", [sessionId, timestamp, text], true, line);
+      context.addPrompt({ id, machineId: context.options.machine.id, provider: "codex", sessionId, timestamp, text }, line);
+    }
+  }
 }
 
 export function parseCodex(lines: SourceLine[], context: ParseContext): void {
   const meta = object(lines.find(({ value }) => value.type === "session_meta")?.value.payload);
   const fileSession = meta?.id ?? meta?.session_id;
-  const isSubagent = subagentSession(meta);
   const modern = lines.some(({ value }) => value.type === "token_usage_record");
   const hasLegacy = lines.some(({ value }) => value.type === "event_msg" && object(value.payload)?.type === "token_count");
   if (modern && hasLegacy) context.report("modern_precedence", "Modern response records take precedence; legacy token counts were omitted. Partial or invalid modern records can leave coverage gaps.");
@@ -46,6 +139,8 @@ export function parseCodex(lines: SourceLine[], context: ParseContext): void {
   let reset = 0;
   let seenCumulative = false;
   const keys = Object.keys(cumulative) as (keyof RawTokens)[];
+
+  collectPrompts(lines, context, meta);
 
   for (const { value: entry, line } of lines) {
     const payload = object(entry.payload);
@@ -92,21 +187,6 @@ export function parseCodex(lines: SourceLine[], context: ParseContext): void {
         : `codex-legacy-${hash(sessionId, reset, raw)}`;
       context.addUsage({ id, machineId: context.options.machine.id, provider: "codex", sessionId, timestamp, model, tokens: normalize(increment) }, line);
       if (raw.write) context.reportOnce("unpriced_cache_writes", "Codex cache writes are retained separately; unsupported write rates leave these records unpriced.", line);
-    } else if (entry.type === "event_msg" && payload?.type === "user_message" && context.options.includePrompts) {
-      const text = payload.message;
-      if (isSubagent || isSynthetic(entry) || isSynthetic(payload) || typeof text !== "string" || !text.trim() || isGeneratedText(text)) {
-        context.reportOnce("excluded_codex_prompts", "Generated, subagent or ambiguous input events were excluded from human prompts.", line);
-        continue;
-      }
-      const timestamp = context.timestamp(entry.timestamp, line);
-      if (!timestamp) continue;
-      const sessionId = context.session(fileSession, line);
-      const nativeId = identifier(payload.client_id);
-      const ordinal = typeof entry.ordinal === "number" && Number.isSafeInteger(entry.ordinal) && entry.ordinal >= 0 ? entry.ordinal : undefined;
-      const id = nativeId ? `codex-prompt-${hash(sessionId, nativeId)}`
-        : ordinal !== undefined ? `codex-prompt-${hash(sessionId, "ordinal", ordinal)}`
-          : context.fallbackId("codex-prompt", [sessionId, timestamp, text], true, line);
-      context.addPrompt({ id, machineId: context.options.machine.id, provider: "codex", sessionId, timestamp, text }, line);
     } else if (!["session_meta", "response_item", "event_msg", "compacted", "world_state", "retained_context", "realtime_item", "inter_agent_communication", "inter_agent_communication_metadata", "security_risk_score"].includes(String(entry.type))) {
       context.reportOnce("unsupported_records", "Unrecognized transcript records were ignored; supported usage and prompts were retained.", line);
     }

@@ -10,6 +10,7 @@ import type { UsageSummary } from "@/lib/aggregate";
 import type { ParsedQuery } from "@/lib/queries";
 import { PRICE_DISCLAIMER } from "@/lib/pricing";
 import { ActivityChart, TokenComposition } from "./activity-chart";
+import { ProviderMark } from "./provider-mark";
 import {
   Avatar,
   compact,
@@ -132,7 +133,7 @@ export function Overview({
         <ModelBreakdown summary={summary} />
         <MemberBreakdown summary={summary} query={query} />
       </div>
-      <RecentSessions summary={summary} query={query} />
+      <RecentSessions summary={summary} />
       <p className="estimate-note">
         <CircleDollarSign size={15} />
         <span>
@@ -176,7 +177,7 @@ function ModelBreakdown({ summary }: { summary: UsageSummary }) {
                       className={`model-icon ${model.provider}`}
                       aria-hidden="true"
                     >
-                      {model.provider === "claude-code" ? "✳" : "◈"}
+                      <ProviderMark provider={model.provider} />
                     </span>
                     <span>
                       <strong title={model.model}>
@@ -263,23 +264,19 @@ function MemberBreakdown({
         ))}
       </div>
       <div className="card-footnote">
-        Member names are provided by contributors.
+        Member names are contributor labels or local display names.{" "}
+        <Link href={hrefFor(query, "sources")}>Edit names in Data sources</Link>
+        .
       </div>
     </section>
   );
 }
-export function RecentSessions({
-  summary,
-  query,
-}: {
-  summary: UsageSummary;
-  query: ParsedQuery;
-}) {
+export function RecentSessions({ summary }: { summary: UsageSummary }) {
   return (
     <section className="card sessions-card">
       <SectionHeading
         title="Recent sessions"
-        detail="Your latest observed work, all in one place"
+        detail="First observed activity in the selected period, with member and computer context"
       >
         <span className="count-badge">
           {summary.recentSessions.length} shown
@@ -292,7 +289,7 @@ export function RecentSessions({
           </caption>
           <thead>
             <tr>
-              <th>Member / session</th>
+              <th>Session / member</th>
               <th>Provider</th>
               <th>Model</th>
               <th className="numeric">Tokens</th>
@@ -304,26 +301,33 @@ export function RecentSessions({
             {summary.recentSessions.map((session) => (
               <tr
                 key={`${session.machineId}:${session.provider}:${session.sessionId}`}
+                data-testid={`session-${session.machineId}-${session.provider}-${session.sessionId}`}
               >
                 <td>
                   <div className="session-member">
                     <Avatar name={session.member} />
                     <div>
-                      <Link
-                        className="table-link"
-                        href={hrefFor(query, "prompts", {
-                          member: session.member,
-                          provider: session.provider,
-                        })}
-                      >
-                        {session.member}
-                      </Link>
-                      <small
-                        className="session-id"
-                        title={`${session.sessionId} · ${session.machineLabel}`}
-                      >
-                        {session.sessionId}
-                      </small>
+                      <strong className="session-title">
+                        Session · {dateTime(session.firstAt)}
+                      </strong>
+                      <span className="session-context">
+                        {session.member} · {session.machineLabel}
+                      </span>
+                      <details className="identity-details">
+                        <summary>Session details</summary>
+                        <dl>
+                          <dt>Session ID</dt>
+                          <dd>
+                            <code>{session.sessionId}</code>
+                          </dd>
+                          <dt>Machine ID</dt>
+                          <dd>
+                            <code>{session.machineId}</code>
+                          </dd>
+                          <dt>Observed usage events</dt>
+                          <dd>{number(session.events)}</dd>
+                        </dl>
+                      </details>
                     </div>
                   </div>
                 </td>
@@ -410,7 +414,7 @@ export function TeamView({
           </article>
         ))}
       </div>
-      <RecentSessions summary={summary} query={query} />
+      <RecentSessions summary={summary} />
       <p className="muted small">
         Names and machine attribution are supplied by contributors. Estimates
         cover priced usage only.
