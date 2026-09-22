@@ -1,0 +1,2 @@
+{"ts":"2026-09-22T13:40:23.274Z","event":"hook-run","check":"pre-commit","exitCode":0,"failures":null,"warnings":null,"warningsByClass":{},"scope_n":null,"phase":null,"gitHead":"90ea90b03487daf238a1c076871eb6debd2fabaf","dirty":true,"durationMs":null,"meta":{}}
+{"ts":"2026-09-22T13:40:23.512Z","event":"hook-run","check":"commit-msg","exitCode":0,"failures":null,"warnings":null,"warningsByClass":{},"scope_n":null,"phase":null,"gitHead":"90ea90b03487daf238a1c076871eb6debd2fabaf","dirty":true,"durationMs":null,"meta":{}}
