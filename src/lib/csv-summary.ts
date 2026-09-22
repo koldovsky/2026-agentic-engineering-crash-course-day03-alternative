@@ -1,5 +1,6 @@
-// Red state (step-09-factory-red): the contract from openspec/changes/11-usage-csv-summary/design.md
-// exists so the test suite compiles, but nothing is implemented yet — every call throws.
+// Pure CSV generator for the visible model breakdown (design.md, FR-CSV-01/02).
+// No I/O, no Intl, no Date.now(), no storage imports: only the passed-in summary
+// (and, for the file name, an injected Date) may influence the output.
 import type { SummaryMetrics, UsageSummary } from "./aggregate";
 
 export type SummaryCsvInput = Pick<UsageSummary, "byModel" | "totals">;
@@ -8,12 +9,53 @@ export type SummaryCsvSource = "local" | "demo";
 
 export const SUMMARY_CSV_HEADER = ["model", "total_tokens", "estimated_cost_usd", "share_percent"] as const;
 
-export function toSummaryCsv(_summary: SummaryCsvInput, _options?: SummaryCsvOptions): string {
-  throw new Error("not implemented");
+const DEFAULT_COST_DECIMALS = 6;
+const DEFAULT_SHARE_DECIMALS = 2;
+
+/** RFC 4180: quote a field that contains a comma, double quote, CR or LF; double inner quotes. */
+function escapeField(value: string): string {
+  return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 }
 
-export function summaryCsvFileName(_source: SummaryCsvSource, _date: Date): string {
-  throw new Error("not implemented");
+/** Trim trailing fractional zeros, then a now-dangling decimal point. Never touches the integer part. */
+function trimTrailingZeros(fixed: string): string {
+  if (!fixed.includes(".")) return fixed;
+  return fixed.replace(/0+$/, "").replace(/\.$/, "");
+}
+
+function formatCost(row: SummaryCsvInput["byModel"][number], decimals: number): string {
+  // Fully unpriced (events observed, none priced): an empty field, never "0".
+  if (row.events > 0 && row.pricedEvents === 0) return "";
+  return trimTrailingZeros(row.estimatedCostUsd.toFixed(decimals));
+}
+
+function formatShare(totalTokens: number, grandTotalTokens: number, decimals: number): string {
+  const share = (totalTokens / Math.max(grandTotalTokens, 1)) * 100;
+  return share.toFixed(decimals);
+}
+
+export function toSummaryCsv(summary: SummaryCsvInput, options: SummaryCsvOptions = {}): string {
+  const costDecimals = options.costDecimals ?? DEFAULT_COST_DECIMALS;
+  const shareDecimals = options.shareDecimals ?? DEFAULT_SHARE_DECIMALS;
+  const lines = [SUMMARY_CSV_HEADER.join(",")];
+  // byModel's given order is preserved verbatim; this generator never re-sorts.
+  for (const row of summary.byModel) {
+    lines.push(
+      [
+        escapeField(row.model),
+        String(row.totalTokens),
+        formatCost(row, costDecimals),
+        formatShare(row.totalTokens, summary.totals.totalTokens, shareDecimals),
+      ].join(","),
+    );
+  }
+  return lines.map((line) => `${line}\r\n`).join("");
+}
+
+export function summaryCsvFileName(source: SummaryCsvSource, date: Date): string {
+  // toISOString() is always UTC regardless of the host's local offset.
+  const utcDate = date.toISOString().slice(0, 10);
+  return `token-atlas-summary-${source}-${utcDate}.csv`;
 }
 
 export type { SummaryMetrics };

@@ -133,17 +133,19 @@ describe("toSummaryCsv: plain numbers", () => {
   it("carries the priced sum without a marker for a partially priced model, with no $, % or separators anywhere", () => {
     const summary = {
       byModel: [
-        modelRow({ model: "partial-model", totalTokens: 1000, estimatedCostUsd: 3.4, events: 10, pricedEvents: 6 }),
+        // fixture id must not contain "partial": the negative regex below guards against the UI's " partial" cost marker
+        modelRow({ model: "mixed-model", totalTokens: 1000, estimatedCostUsd: 3.4, events: 10, pricedEvents: 6 }),
       ],
       totals: totalsRow(1000),
     };
     const csv = toSummaryCsv(summary);
     const lines = csv.split("\r\n");
-    expect(lines[1]).toBe("partial-model,1000,3.4,100.00");
+    expect(lines[1]).toBe("mixed-model,1000,3.4,100.00");
     expect(csv).not.toMatch(/partial/i);
     expect(csv).not.toContain("$");
     expect(csv).not.toContain("%");
-    expect(csv).not.toMatch(/\d,\d{3}/); // no thousands separators
+    // no thousands separators inside any field (commas between fields are the CSV separator itself)
+    for (const field of lines[1].split(",")) expect(field).not.toMatch(/\d[,\s]\d{3}/);
   });
 });
 

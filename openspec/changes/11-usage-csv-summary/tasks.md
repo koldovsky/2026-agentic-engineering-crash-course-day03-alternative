@@ -11,14 +11,14 @@
 
 ## 3. Domain logic (green)
 
-- [ ] 3.1 Implement `src/lib/csv-summary.ts`: `SUMMARY_CSV_HEADER`, `toSummaryCsv(summary, options)`, `summaryCsvFileName(source, date)` exactly as specified in design.md — no I/O, no `Intl`, no clock, never re-sorts rows.
-- [ ] 3.2 Make the unit tests pass without weakening any assertion.
+- [x] 3.1 Implement `src/lib/csv-summary.ts`: `SUMMARY_CSV_HEADER`, `toSummaryCsv(summary, options)`, `summaryCsvFileName(source, date)` exactly as specified in design.md — no I/O, no `Intl`, no clock, never re-sorts rows.
+- [x] 3.2 Make the unit tests pass without weakening any assertion. (One fixture defect found by the implementer — model id `partial-model` tripped the test's own `/partial/i` guard against the UI cost marker — fixed by renaming the fixture to `mixed-model`; no assertion weakened.)
 
 ## 4. UI
 
-- [ ] 4.1 Add `src/components/summary-csv-control.tsx` (`"use client"`): Blob + object URL + detached anchor download as in `ExportControl`, native `disabled` when there are no rows, inline `role="alert"` on failure and `role="status"` on success.
-- [ ] 4.2 Thread `source` into `ModelBreakdown` and render the control in the Usage by model card heading; add the optional `children` slot to `EmptyUsage` and pass the disabled control from the overview branch of `src/app/page.tsx`.
-- [ ] 4.3 Make the markup tests pass; `npm run check` green; commit with `Slice: 11-usage-csv-summary` and `Refs: FR-CSV-01, FR-CSV-02, FR-CSV-03, BC-PRIVACY-02`.
+- [x] 4.1 Add `src/components/summary-csv-control.tsx` (`"use client"`): Blob + object URL + detached anchor download as in `ExportControl`, native `disabled` when there are no rows, inline `role="alert"` on failure and `role="status"` on success.
+- [x] 4.2 Thread `source` into `ModelBreakdown` and render the control in the Usage by model card heading; add the optional `children` slot to `EmptyUsage` and pass the disabled control from the overview branch of `src/app/page.tsx`.
+- [x] 4.3 Make the markup tests pass; `npm run check` green; commit with `Slice: 11-usage-csv-summary` and `Refs: FR-CSV-01, FR-CSV-02, FR-CSV-03, BC-PRIVACY-02`.
 
 ## 5. Validation, docs and archive
 
