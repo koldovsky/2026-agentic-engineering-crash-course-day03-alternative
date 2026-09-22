@@ -1,46 +1,46 @@
 {
   "generatedBy": "scripts/check-acceptance-methods.mjs",
-  "mode": "existence",
+  "mode": "artifact",
   "productCode": true,
   "contracts": {
     "FR-CSV-01": [
       {
         "method": "local-verifiable",
         "mechanism": "npm:test",
-        "artifact": null,
-        "status": "mechanism-ok"
+        "artifact": "src/lib/csv-download.test.ts",
+        "status": "artifact-ok"
       }
     ],
     "FR-CSV-02": [
       {
         "method": "local-verifiable",
         "mechanism": "npm:test",
-        "artifact": null,
-        "status": "mechanism-ok"
+        "artifact": "src/lib/csv-summary.test.ts",
+        "status": "artifact-ok"
       }
     ],
     "FR-CSV-03": [
       {
         "method": "local-verifiable",
         "mechanism": "npm:test",
-        "artifact": null,
-        "status": "mechanism-ok"
+        "artifact": "src/components/summary-csv-control.test.ts",
+        "status": "artifact-ok"
       }
     ],
     "TC-STACK-01": [
       {
         "method": "local-verifiable",
         "mechanism": "npm:test",
-        "artifact": null,
-        "status": "mechanism-ok"
+        "artifact": "src/lib/stack-constraint.test.ts",
+        "status": "artifact-ok"
       }
     ],
     "BC-PRIVACY-02": [
       {
         "method": "local-verifiable",
         "mechanism": "npm:test",
-        "artifact": null,
-        "status": "mechanism-ok"
+        "artifact": "src/lib/csv-summary.test.ts",
+        "status": "artifact-ok"
       }
     ]
   }

@@ -4,7 +4,7 @@ Specs describe behavior. Tests establish behavior; OpenSpec validation checks
 document structure. The [actual build log](workshop/build-log.md) records which
 commands ran and their results. CI configuration alone is not evidence of a pass.
 
-Verified locally on 2026-09-15: **98 unit/API tests and 8 browser journeys**,
+Verified locally on 2026-09-22: **192 unit/API tests and 21 browser journeys**,
 lint, TypeScript, strict OpenSpec validation, and production build passed.
 The browser suite also checks runtime/hydration errors and 375px page overflow.
 
