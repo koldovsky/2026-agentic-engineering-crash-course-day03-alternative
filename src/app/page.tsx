@@ -120,7 +120,7 @@ export default async function Home({
       ) : null}
       {view === "overview" ? (
         summary.totals.events ? (
-          <Overview summary={summary} query={query} />
+          <Overview summary={summary} query={query} filtered={filtered} />
         ) : (
           <EmptyUsage filtered={filtered} query={query}>
             <div className="inline-row centered">

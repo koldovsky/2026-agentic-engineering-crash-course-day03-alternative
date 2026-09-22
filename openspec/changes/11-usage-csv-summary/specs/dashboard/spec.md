@@ -16,8 +16,12 @@ the way to widen them (FR-CSV-03). The CSV SHALL NOT contain prompt text, sessio
 identifiers, machine host names or labels, OS or member user names or file paths;
 only aggregate model rows leave the page (BC-PRIVACY-02). The model column is the
 raw model identifier; there is no provider column, so a name may repeat when two
-providers report it. Intentionally unsupported: a totals row, member, daily or
-session CSVs, a server CSV route, prompt inclusion and an export-time budget.
+providers report it. A model field whose first character is `=`, `+`, `-`, `@`,
+TAB or CR SHALL be neutralised with a leading single quote and force-quoted per
+RFC 4180 so spreadsheet applications never evaluate it as a formula (FR-CSV-02).
+Intentionally unsupported: a totals row, member, daily or session CSVs, a server
+CSV route, prompt inclusion and an export-time budget. The slice inherits
+TC-STACK-01.
 
 #### Scenario: Header and one row per model in table order
 - **GIVEN** the synthetic demo Overview filtered to a provider whose table lists three models
@@ -50,6 +54,13 @@ session CSVs, a server CSV route, prompt inclusion and an export-time budget.
   preserving the line break; fields without such characters are unquoted; every
   row including the header and the last row ends with CR LF; no bare LF appears
   outside a quoted field (FR-CSV-02)
+
+#### Scenario: Spreadsheet formula characters are neutralised
+- **GIVEN** a visible row whose model id is `=SUM(A1)`
+- **WHEN** the CSV is generated
+- **THEN** the cell is written as `"'=SUM(A1)"`: a leading single quote
+  neutralises the formula trigger and the field is force-quoted per RFC 4180,
+  regardless of any other characters in the model id (FR-CSV-02)
 
 #### Scenario: Deterministic output
 - **GIVEN** two structurally equal summaries (a JSON clone of the first)

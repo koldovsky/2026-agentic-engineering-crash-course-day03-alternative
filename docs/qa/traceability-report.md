@@ -8,9 +8,9 @@ Result: PASS, 5 warning(s)
 
 | FR | Spec | Plan | Test trace | Recording |
 |---|---|---|---|---|
-| FR-CSV-01 | yes | yes | 1 | - |
+| FR-CSV-01 | yes | yes | 2 | - |
 | FR-CSV-02 | yes | yes | 1 | - |
-| FR-CSV-03 | yes | yes | 2 | - |
+| FR-CSV-03 | yes | yes | 3 | - |
 
 ## Failures
 

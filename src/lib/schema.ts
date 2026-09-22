@@ -8,6 +8,7 @@ const label = z.string().trim().min(1).max(100).regex(/^[^\x00-\x1f\x7f]+$/);
 const count = z.number().int().min(0).max(1_000_000_000);
 const timestamp = z.iso.datetime().transform((value) => new Date(value).toISOString());
 export const ProviderSchema = z.enum(["claude-code", "codex"]);
+export const SourceSchema = z.enum(["local", "demo"]);
 export const TokensSchema = z.strictObject({
   input: count, cacheRead: count, cacheWrite: count, cacheWrite1h: count,
   output: count, reasoning: count,
@@ -42,6 +43,7 @@ export const BundleSchema = z.strictObject({
 });
 
 export type Provider = z.infer<typeof ProviderSchema>;
+export type Source = z.infer<typeof SourceSchema>;
 export type Tokens = z.infer<typeof TokensSchema>;
 export type Machine = z.infer<typeof MachineSchema>;
 export type UsageEvent = z.infer<typeof UsageEventSchema>;

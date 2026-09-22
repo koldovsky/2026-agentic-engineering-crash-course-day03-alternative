@@ -4,11 +4,12 @@
 // Only `rows` (byModel) and `totals` cross the server-client boundary: no session,
 // machine or member identifiers reach this component (BC-PRIVACY-02).
 import { useState } from "react";
-import type { SummaryMetrics, UsageSummary } from "@/lib/aggregate";
-import { summaryCsvFileName, toSummaryCsv, type SummaryCsvSource } from "@/lib/csv-summary";
+import type { SummaryMetrics } from "@/lib/aggregate";
+import { summaryCsvFileName, toSummaryCsv, type SummaryCsvRow, type SummaryCsvSource } from "@/lib/csv-summary";
+import { triggerCsvDownload } from "@/lib/csv-download";
 
 export type SummaryCsvControlProps = {
-  rows: UsageSummary["byModel"];
+  rows: SummaryCsvRow[];
   totals: SummaryMetrics;
   source: SummaryCsvSource;
   filtered: boolean;
@@ -32,16 +33,8 @@ export function SummaryCsvControl({ rows, totals, source, filtered }: SummaryCsv
     try {
       const csv = toSummaryCsv({ byModel: rows, totals });
       const fileName = summaryCsvFileName(source, new Date());
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setStatus(`${fileName} downloaded.`);
+      triggerCsvDownload(csv, fileName);
+      setStatus(`Download started: ${fileName}`);
     } catch {
       setError(FAILURE_MESSAGE);
     }

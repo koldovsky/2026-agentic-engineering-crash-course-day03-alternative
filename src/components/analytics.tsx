@@ -120,9 +120,11 @@ export function MetricCards({ summary }: { summary: UsageSummary }) {
 export function Overview({
   summary,
   query,
+  filtered,
 }: {
   summary: UsageSummary;
   query: ParsedQuery;
+  filtered: boolean;
 }) {
   return (
     <>
@@ -132,7 +134,7 @@ export function Overview({
         <TokenComposition summary={summary} />
       </div>
       <div className="breakdown-grid">
-        <ModelBreakdown summary={summary} source={query.source} />
+        <ModelBreakdown summary={summary} source={query.source} filtered={filtered} />
         <MemberBreakdown summary={summary} query={query} />
       </div>
       <RecentSessions summary={summary} />
@@ -151,11 +153,12 @@ export function Overview({
 function ModelBreakdown({
   summary,
   source,
+  filtered,
 }: {
   summary: UsageSummary;
   source: SummaryCsvSource;
+  filtered: boolean;
 }) {
-  const filtered = Object.values(summary.filters).some(Boolean);
   return (
     <section className="card">
       <SectionHeading
@@ -165,7 +168,14 @@ function ModelBreakdown({
         <div className="inline-row">
           <span className="count-badge">{summary.byModel.length} models</span>
           <SummaryCsvControl
-            rows={summary.byModel}
+            key={`${source}:${JSON.stringify(summary.filters)}`}
+            rows={summary.byModel.map(({ model, totalTokens, estimatedCostUsd, events, pricedEvents }) => ({
+              model,
+              totalTokens,
+              estimatedCostUsd,
+              events,
+              pricedEvents,
+            }))}
             totals={summary.totals}
             source={source}
             filtered={filtered}

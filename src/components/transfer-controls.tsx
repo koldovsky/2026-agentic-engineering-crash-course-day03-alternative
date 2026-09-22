@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useRef, useState, useTransition, type FormEvent } from "react";
-import type { Machine, Provider } from "@/lib/schema";
+import type { Machine, Provider, Source } from "@/lib/schema";
 import type { importData } from "@/lib/transfer";
 
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
-type Source = "local" | "demo";
 type ImportReply = ReturnType<typeof importData>;
 type Preview = Extract<ImportReply, { preview: true }>;
 type ImportRequest =

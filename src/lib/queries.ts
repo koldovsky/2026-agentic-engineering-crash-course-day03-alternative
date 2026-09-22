@@ -2,18 +2,18 @@
 import { z } from "zod";
 import type { UsageFilters } from "./aggregate";
 import { makeDemoBundle } from "./demo";
-import { ProviderSchema, type Bundle, type Machine, type PromptEvent, type Provider } from "./schema";
+import { ProviderSchema, SourceSchema, type Bundle, type Machine, type PromptEvent, type Provider, type Source } from "./schema";
 import { withLedger } from "./storage";
 import { withDisplayNames, type DisplayBundle, type MachineDisplayDetails } from "./display-names";
 
-export type Source = "local" | "demo";
+export type { Source };
 export type ParsedQuery = { source: Source; filters: UsageFilters; q: string; page: number };
 export type PromptItem = PromptEvent & { member: string; machineLabel: string };
 export type PromptPage = { items: PromptItem[]; total: number; page: number; pageSize: 20; totalPages: number };
 export type MachineSummary = Machine & MachineDisplayDetails & { usage: number; sessions: number; providers: Provider[]; lastAt: string | null };
 
 const QuerySchema = z.object({
-  source: z.enum(["local", "demo"]),
+  source: SourceSchema,
   provider: ProviderSchema.optional(),
   member: z.string().max(100).optional(),
   model: z.string().max(120).optional(),

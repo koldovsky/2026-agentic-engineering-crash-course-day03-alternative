@@ -2,13 +2,17 @@
 //
 // Grades the two empty-state sentences SummaryCsvControl renders when there
 // is nothing to export: "no usage matches the current filters" vs. "this
-// source has no usage yet". Both are static, pure copy -- there is nothing
-// to drive in a running app -- so `produce()` inlines the exact rendered
-// sentence, the same non-interactive shape the sample cases use (see
-// evals/cases/sample.eval.ts and evals/README.md).
+// source has no usage yet". `produce()` renders the real component with
+// `renderToStaticMarkup` (rows: [], filtered: true|false) so the eval grades
+// the actual rendered output, not a hand-copied literal that can drift from
+// the component's real copy. See evals/README.md for the case shape.
 //
 // TRACEABILITY: keep `trace:` on each case in sync with the `@trace` footer
 // at the bottom of this file; check-traceability.mjs scans for the footer.
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { SummaryCsvControl } from "../../src/components/summary-csv-control";
+import type { SummaryMetrics } from "../../src/lib/aggregate";
 
 export type EvalCase = {
   /** Stable, unique id. Used in reports and the manifest. */
@@ -27,6 +31,38 @@ export type EvalCase = {
   rubric: string[];
 };
 
+function zeroTotals(): SummaryMetrics {
+  return {
+    events: 0,
+    totalTokens: 0,
+    tokens: { input: 0, cacheRead: 0, cacheWrite: 0, cacheWrite1h: 0, output: 0, reasoning: 0 },
+    estimatedCostUsd: 0,
+    pricedEvents: 0,
+    unpricedEvents: 0,
+    pricedTokens: 0,
+    unpricedTokens: 0,
+    pricingCoverage: null,
+    sessions: 0,
+    members: 0,
+    machines: 0,
+  };
+}
+
+/** Renders the control's empty-state markup and extracts the visible message, tags stripped. */
+function emptyStateMessage(filtered: boolean): string {
+  const html = renderToStaticMarkup(
+    createElement(SummaryCsvControl, {
+      rows: [],
+      totals: zeroTotals(),
+      source: "demo",
+      filtered,
+    }),
+  );
+  const match = html.match(/<span class="muted">([\s\S]*?)<\/span>/);
+  if (!match) throw new Error(`No empty-state message found in rendered markup: ${html}`);
+  return match[1].replace(/<[^>]*>/g, "").trim();
+}
+
 export const cases: EvalCase[] = [
   {
     id: "csv-empty-filtered",
@@ -35,8 +71,7 @@ export const cases: EvalCase[] = [
     capability: "dashboard",
     scenario:
       "The Usage by model card is showing with an active provider, member, model or date filter that matches no usage; Download CSV is disabled.",
-    produce: async () =>
-      "Nothing to export: no usage matches the current filters. Clear the filters, or widen the provider, member, model or date range, to include usage in the CSV.",
+    produce: async () => emptyStateMessage(true),
     rubric: [
       "CRITICAL: names the condition (no usage matches the current filters) and the remedy (clear or widen filters)",
       "the message is two sentences or fewer",
@@ -51,8 +86,7 @@ export const cases: EvalCase[] = [
     capability: "dashboard",
     scenario:
       "The active source (e.g. local) has no imported usage at all and no filters are applied; Download CSV is disabled.",
-    produce: async () =>
-      "Nothing to export: this source has no usage yet. Import usage in Data sources to get a model breakdown.",
+    produce: async () => emptyStateMessage(false),
     rubric: [
       "CRITICAL: names the condition (no usage in this source) and the remedy (import usage), and does not tell the user to widen filters",
       "the message is two sentences or fewer",

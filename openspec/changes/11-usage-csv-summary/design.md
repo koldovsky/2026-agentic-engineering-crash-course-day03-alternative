@@ -94,15 +94,26 @@ a user with no data to widen filters would be false. Both are graded by
 The generator has no failure path for a valid `UsageSummary`; zero total tokens
 yields `0.00` shares. The control wraps Blob, object URL and anchor creation in
 try/catch and renders an inline `role="alert"` message ("The CSV could not be
-created in this browser. Try again or use Export data for JSON.") and a
-`role="status"` confirmation naming the file on success. No thrown error reaches
-the route error boundary; a disabled action has no click path.
+created in this browser. Try again or use Export data for JSON.") and, on
+success, a `role="status"` message reading "Download started: <fileName>" (the
+browser, not the page, confirms completion, so the copy never claims it). No
+thrown error reaches the route error boundary; a disabled action has no click
+path. `ModelBreakdown` keys `SummaryCsvControl` by the source and JSON-stringified
+filters (mirroring `FilterBar`'s key in `page.tsx`), so a stale status or error
+from a previous filter/source combination is discarded when the visible rows
+change. The Blob, object URL, anchor and revoke-timer side effects live in an
+exported, environment-injected `triggerCsvDownload` (`src/lib/csv-download.ts`)
+so the failure path and the Blob's `text/csv;charset=utf-8` type are covered by
+a unit test (`csv-download.test.ts`) without simulating a real click.
 
 ## Risks / Trade-offs
 
-- Model ids beginning with `=`, `+`, `-` or `@` could be evaluated by spreadsheet
-  applications -> out of scope by decision (raw model id, bounded to 1-120 chars,
-  authored by the same user who imported it); recorded here for a follow-up.
+- Model ids beginning with `=`, `+`, `-`, `@`, TAB or CR could be evaluated as a
+  formula by spreadsheet applications -> mitigated: `escapeField` in
+  `csv-summary.ts` prefixes such a field with a single quote and force-quotes it
+  per RFC 4180 (OWASP CSV-injection guidance), covered by
+  `csv-summary.test.ts` and the "Spreadsheet formula characters are neutralised"
+  scenario.
 - Duplicate model names across providers look like duplicate rows -> accepted by
   clarification; the requirement text says so explicitly.
 - Client-only download needs JS and a browser `URL.createObjectURL` -> inline

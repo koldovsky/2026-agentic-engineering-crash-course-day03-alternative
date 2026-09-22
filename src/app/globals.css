@@ -110,6 +110,13 @@ pre {
   gap: 10px;
   flex-wrap: wrap;
 }
+/* A .notice sitting beside other controls in an .inline-row (e.g. the CSV
+   download status/error) must take its own full-width line instead of
+   sharing horizontal space and fragmenting when the row wraps. */
+.inline-row .notice {
+  display: block;
+  flex-basis: 100%;
+}
 .centered {
   justify-content: center;
 }

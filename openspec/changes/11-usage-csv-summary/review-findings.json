@@ -1,0 +1,58 @@
+{
+  "generatedBy": "review-gate",
+  "scope": "11-usage-csv-summary",
+  "change": "11-usage-csv-summary",
+  "baseRef": "step-08-factory-spec",
+  "headRef": "HEAD",
+  "dimensions": {
+    "correctness": {
+      "confirmed": 7,
+      "contested": 0,
+      "rejected": 2
+    },
+    "security": {
+      "confirmed": 7,
+      "contested": 0,
+      "rejected": 1
+    },
+    "spec-compliance": {
+      "confirmed": 11,
+      "contested": 0,
+      "rejected": 0
+    },
+    "visual": {
+      "confirmed": 0,
+      "contested": 0,
+      "rejected": 0
+    }
+  },
+  "confirmedTitles": [
+    "Download status/error state is stale across filter and source changes (control not keyed like FilterBar)",
+    "Success message claims completion the browser never confirms",
+    "Dead type re-export `export type { SummaryMetrics }`",
+    "`filtered` recomputed in ModelBreakdown duplicates page.tsx and is unreachable there",
+    "Eval grades a third hand-copied literal, not the component's rendered output; comment cites a non-existent sample file",
+    "Task ledger and evidence out of sync: tests-first tasks unchecked, UI tasks checked without build-log or browser evidence",
+    "Spreadsheet formula injection via model ids is deferred, not mitigated",
+    "CSV formula injection: model ids beginning with =, +, -, @ or TAB are written verbatim into the first cell of every row",
+    "Clean: authorization matrix / IDOR / tenant scoping (no new route, server action or endpoint; loopback guard applies)",
+    "Clean: authentication and sessions (not applicable; the application has no auth, cookies, tokens or sessions)",
+    "Clean: SQL, HTML and path injection (CSV formula injection is reported separately)",
+    "Clean: secrets and configuration hygiene",
+    "Clean: dependency audit (0 vulnerabilities, no dependency change)",
+    "Clean: abuse resistance (no new endpoint, bounded input, no mass assignment)",
+    "Coverage summary: 10 scenarios: 8 implemented, 2 partial, 0 missing, 0 contradicted",
+    "Scenario 'Download failure surfaces inline' is implemented but has no test",
+    "Scenario 'Accessible name and keyboard use' only partially verified (focus, Enter/Space, 375px overflow unchecked)",
+    "Eval grades an inlined string literal, not the rendered control output; design.md's copy-drift mitigation is not honored",
+    "Task 3.2 documents one test edit; the green commit made two, and the rewritten thousands-separator guard cannot detect a comma",
+    "tasks.md sections 1 and 2 unticked although artifacts exist; 2.4's build-log record is genuinely missing",
+    "Task 5.1 artifacts are committed at HEAD (16aafec) but the checkbox is still unticked",
+    "Undocumented API surface: public SummaryCsvOptions is untested and a dead SummaryMetrics re-export is outside design.md's signature",
+    "Blob MIME type from the 'File name and encoding' scenario is asserted nowhere",
+    "TC-STACK-01 travels with the slice per the capability plan but is not cited in the spec delta and had no committed enforcement point at HEAD",
+    "Eval file comment points to a non-existent evals/cases/sample.eval.ts"
+  ],
+  "clean": false,
+  "generatedAt": "2026-09-22T14:40:59Z"
+}

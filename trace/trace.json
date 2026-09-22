@@ -15,6 +15,7 @@
       ],
       "planned": true,
       "tests": [
+        "src/lib/csv-download.test.ts",
         "src/lib/csv-summary.test.ts"
       ],
       "recordings": []
@@ -38,6 +39,7 @@
       "planned": true,
       "tests": [
         "src/components/summary-csv-control.test.ts",
+        "src/lib/csv-download.test.ts",
         "evals/cases/csv-summary.eval.ts"
       ],
       "recordings": []

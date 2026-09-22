@@ -171,6 +171,36 @@ describe("toSummaryCsv: RFC 4180 escaping", () => {
   });
 });
 
+describe("toSummaryCsv: spreadsheet formula injection", () => {
+  it("neutralises a model id starting with a formula-triggering character with a leading single quote, then quotes the field", () => {
+    const rows = [
+      modelRow({ model: "=SUM(A1)", totalTokens: 100, estimatedCostUsd: 1 }),
+      modelRow({ model: "+1+1", totalTokens: 100, estimatedCostUsd: 1 }),
+      modelRow({ model: "-1", totalTokens: 100, estimatedCostUsd: 1 }),
+      modelRow({ model: "@cmd", totalTokens: 100, estimatedCostUsd: 1 }),
+      modelRow({ model: "\tmodel", totalTokens: 100, estimatedCostUsd: 1 }),
+      modelRow({ model: "\rmodel", totalTokens: 100, estimatedCostUsd: 1 }),
+    ];
+    const summary = { byModel: rows, totals: totalsRow(600) };
+    const lines = toSummaryCsv(summary).split("\r\n");
+    expect(lines[1]).toBe(`"'=SUM(A1)",100,1,16.67`);
+    expect(lines[2]).toBe(`"'+1+1",100,1,16.67`);
+    expect(lines[3]).toBe(`"'-1",100,1,16.67`);
+    expect(lines[4]).toBe(`"'@cmd",100,1,16.67`);
+    expect(lines[5]).toBe(`"'\tmodel",100,1,16.67`);
+    expect(lines[6]).toBe(`"'\rmodel",100,1,16.67`);
+  });
+
+  it("leaves a plain model id starting with a hyphenated but non-formula character alone", () => {
+    const summary = {
+      byModel: [modelRow({ model: "gpt-5.4", totalTokens: 100, estimatedCostUsd: 1 })],
+      totals: totalsRow(100),
+    };
+    const lines = toSummaryCsv(summary).split("\r\n");
+    expect(lines[1]).toBe("gpt-5.4,100,1,100.00");
+  });
+});
+
 describe("toSummaryCsv: determinism", () => {
   it("produces a byte-identical string for a structurally equal (JSON-cloned) summary", () => {
     const original = {

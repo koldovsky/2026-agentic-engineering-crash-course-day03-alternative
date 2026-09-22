@@ -1,19 +1,34 @@
 // Pure CSV generator for the visible model breakdown (design.md, FR-CSV-01/02).
 // No I/O, no Intl, no Date.now(), no storage imports: only the passed-in summary
 // (and, for the file name, an injected Date) may influence the output.
-import type { SummaryMetrics, UsageSummary } from "./aggregate";
+import type { UsageSummary } from "./aggregate";
+import type { Source } from "./schema";
 
-export type SummaryCsvInput = Pick<UsageSummary, "byModel" | "totals">;
+/** Only the five fields the generator reads; keeps the RSC payload to the control minimal. */
+export type SummaryCsvRow = Pick<
+  UsageSummary["byModel"][number],
+  "model" | "totalTokens" | "estimatedCostUsd" | "events" | "pricedEvents"
+>;
+export type SummaryCsvInput = { byModel: SummaryCsvRow[]; totals: UsageSummary["totals"] };
 export type SummaryCsvOptions = { costDecimals?: number; shareDecimals?: number };
-export type SummaryCsvSource = "local" | "demo";
+export type SummaryCsvSource = Source;
 
 export const SUMMARY_CSV_HEADER = ["model", "total_tokens", "estimated_cost_usd", "share_percent"] as const;
 
 const DEFAULT_COST_DECIMALS = 6;
 const DEFAULT_SHARE_DECIMALS = 2;
 
+/**
+ * OWASP CSV-injection guidance: a field whose first character is `=`, `+`,
+ * `-`, `@`, TAB or CR could be read as a formula by a spreadsheet app. Such a
+ * field is neutralised with a leading single quote and force-quoted per RFC
+ * 4180 regardless of its other characters.
+ */
+const FORMULA_TRIGGER = /^[=+\-@\t\r]/;
+
 /** RFC 4180: quote a field that contains a comma, double quote, CR or LF; double inner quotes. */
 function escapeField(value: string): string {
+  if (FORMULA_TRIGGER.test(value)) return `"'${value.replace(/"/g, '""')}"`;
   return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 }
 
@@ -57,5 +72,3 @@ export function summaryCsvFileName(source: SummaryCsvSource, date: Date): string
   const utcDate = date.toISOString().slice(0, 10);
   return `token-atlas-summary-${source}-${utcDate}.csv`;
 }
-
-export type { SummaryMetrics };
