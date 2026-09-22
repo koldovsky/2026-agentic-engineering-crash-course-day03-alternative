@@ -1,0 +1,69 @@
+{
+  "generatedBy": "scripts/check-traceability.mjs",
+  "requirements": {
+    "FR-CSV-01": "MVP",
+    "FR-CSV-02": "MVP",
+    "FR-CSV-03": "MVP",
+    "TC-STACK-01": "MVP",
+    "BC-PRIVACY-02": "MVP"
+  },
+  "links": [
+    {
+      "id": "FR-CSV-01",
+      "specs": [
+        "openspec/changes/11-usage-csv-summary/specs/dashboard/spec.md"
+      ],
+      "planned": true,
+      "tests": [
+        "src/lib/csv-summary.test.ts"
+      ],
+      "recordings": []
+    },
+    {
+      "id": "FR-CSV-02",
+      "specs": [
+        "openspec/changes/11-usage-csv-summary/specs/dashboard/spec.md"
+      ],
+      "planned": true,
+      "tests": [
+        "src/lib/csv-summary.test.ts"
+      ],
+      "recordings": []
+    },
+    {
+      "id": "FR-CSV-03",
+      "specs": [
+        "openspec/changes/11-usage-csv-summary/specs/dashboard/spec.md"
+      ],
+      "planned": true,
+      "tests": [
+        "src/components/summary-csv-control.test.ts",
+        "evals/cases/csv-summary.eval.ts"
+      ],
+      "recordings": []
+    }
+  ],
+  "failures": [],
+  "warnings": [
+    {
+      "check": "recording-evidence",
+      "msg": "FR-CSV-01 is not referenced by any recording manifest under docs/qa/"
+    },
+    {
+      "check": "recording-evidence",
+      "msg": "FR-CSV-02 is not referenced by any recording manifest under docs/qa/"
+    },
+    {
+      "check": "recording-evidence",
+      "msg": "FR-CSV-03 is not referenced by any recording manifest under docs/qa/"
+    },
+    {
+      "check": "active-changes",
+      "msg": "active change \"06-scoped-export\" is not archived"
+    },
+    {
+      "check": "active-changes",
+      "msg": "active change \"11-usage-csv-summary\" is not archived"
+    }
+  ]
+}

@@ -16,6 +16,7 @@ import { Overview, TeamView } from "@/components/analytics";
 import { PromptLibrary } from "@/components/prompt-library";
 import { SourcesView } from "@/components/sources-view";
 import { PricingReference } from "@/components/pricing-reference";
+import { SummaryCsvControl } from "@/components/summary-csv-control";
 import { EmptyUsage, views, type View } from "@/components/ui";
 
 export const runtime = "nodejs";
@@ -121,7 +122,16 @@ export default async function Home({
         summary.totals.events ? (
           <Overview summary={summary} query={query} />
         ) : (
-          <EmptyUsage filtered={filtered} query={query} />
+          <EmptyUsage filtered={filtered} query={query}>
+            <div className="inline-row centered">
+              <SummaryCsvControl
+                rows={[]}
+                totals={summary.totals}
+                source={query.source}
+                filtered={filtered}
+              />
+            </div>
+          </EmptyUsage>
         )
       ) : null}
       {view === "team" ? (

@@ -8,9 +8,11 @@ import {
 } from "lucide-react";
 import type { UsageSummary } from "@/lib/aggregate";
 import type { ParsedQuery } from "@/lib/queries";
+import type { SummaryCsvSource } from "@/lib/csv-summary";
 import { PRICE_DISCLAIMER } from "@/lib/pricing";
 import { ActivityChart, TokenComposition } from "./activity-chart";
 import { ProviderMark } from "./provider-mark";
+import { SummaryCsvControl } from "./summary-csv-control";
 import {
   Avatar,
   compact,
@@ -130,7 +132,7 @@ export function Overview({
         <TokenComposition summary={summary} />
       </div>
       <div className="breakdown-grid">
-        <ModelBreakdown summary={summary} />
+        <ModelBreakdown summary={summary} source={query.source} />
         <MemberBreakdown summary={summary} query={query} />
       </div>
       <RecentSessions summary={summary} />
@@ -146,14 +148,29 @@ export function Overview({
     </>
   );
 }
-function ModelBreakdown({ summary }: { summary: UsageSummary }) {
+function ModelBreakdown({
+  summary,
+  source,
+}: {
+  summary: UsageSummary;
+  source: SummaryCsvSource;
+}) {
+  const filtered = Object.values(summary.filters).some(Boolean);
   return (
     <section className="card">
       <SectionHeading
         title="Usage by model"
         detail="A closer look at your model mix"
       >
-        <span className="count-badge">{summary.byModel.length} models</span>
+        <div className="inline-row">
+          <span className="count-badge">{summary.byModel.length} models</span>
+          <SummaryCsvControl
+            rows={summary.byModel}
+            totals={summary.totals}
+            source={source}
+            filtered={filtered}
+          />
+        </div>
       </SectionHeading>
       <div className="table-scroll">
         <table className="model-table">

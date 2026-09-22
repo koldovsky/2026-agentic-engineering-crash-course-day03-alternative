@@ -160,9 +160,11 @@ export function SectionHeading({
 export function EmptyUsage({
   filtered,
   query,
+  children,
 }: {
   filtered: boolean;
   query: ParsedQuery;
+  children?: ReactNode;
 }) {
   return (
     <section className="empty-state card">
@@ -210,6 +212,7 @@ export function EmptyUsage({
           </>
         )}
       </div>
+      {children}
       {!filtered ? (
         <div className="empty-footnote">
           Stored on your machine. Shared only when you export.

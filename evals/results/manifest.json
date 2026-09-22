@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-09-22T14:26:02Z",
+  "kind": "eval",
+  "results": [
+    {
+      "id": "csv-empty-filtered",
+      "dimension": "usability-clarity",
+      "proof": "FR-CSV-03",
+      "score": 93,
+      "pass": true
+    },
+    {
+      "id": "csv-empty-source",
+      "dimension": "usability-clarity",
+      "proof": "FR-CSV-03",
+      "score": 92,
+      "pass": true
+    }
+  ]
+}
