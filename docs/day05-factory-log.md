@@ -37,7 +37,7 @@
 | 5 · зелене | `step-10-factory-green` | 1 (capability-implementer) | 12 (17:15–17:27) | недоступно | 17/17, `npm run check` 189/189; hook відмовив без trailers (exit 1); 2 дефекти фікстур виправлено в тесті без послаблення |
 | 6 · evals | `step-11-factory-evals` | 4 (collect, 2 судді, writer) | 3 (17:25–17:28) | недоступно | 2/2 pass, usability-clarity 92.5 → baseline 92.5 |
 | 7 · ворота + рев'ю | `step-12-factory-gates` | review-gate №1: 61; fixer: 1; review-gate №2: див. «Рев'ю» | рев'ю 16 + виправлення 20 + рев'ю ~16 (17:32–18:25) | недоступно | qa:verify №2: 12 PASS, 2 NOT-EARNED, 0 FAIL; рев'ю №1 — 25 підтверджених → виправлено → рев'ю №2 |
-| 8 · archive + ledger | `step-13-factory-archive` | 0 | | недоступно | |
+| 8 · archive + ledger | `step-13-factory-archive` | 0 | 5 (18:25–18:30) | недоступно | archive **не виконано**: рев'ю `clean: false`; ledger digest, process-health, gate-status записані; зміна лишається активною |
 
 ## Ворота (три стани)
 

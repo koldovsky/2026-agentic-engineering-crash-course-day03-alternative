@@ -6,7 +6,7 @@
 
 ## Last Updated
 
-- **Date and time:** 2026-09-22 17:30:00 (Europe/Kyiv)
+- **Date and time:** 2026-09-22 18:30:00 (Europe/Kyiv)
 - **Current phase:** Phase 4
 - **Last completed gate:** G3
 - **Active change:** 11-usage-csv-summary
@@ -17,14 +17,16 @@
   `step-09-factory-red`), a green implementation with `Slice:`/`Refs:` trailers
   (`step-10-factory-green`, 189/189 unit tests + 3 constraint tests) and is now in the gate phase:
   eval-suite, qa:verify, review-gate, archive.
-- **Next task:** finish G4 for `11-usage-csv-summary` — eval baseline (`quality/eval-baseline.json`),
-  `npm run qa:verify` three-state battery, review-gate clean (`review-findings.json`), then
-  `npm run openspec -- archive 11-usage-csv-summary --yes` and update this header.
+- **Next task:** the change stays ACTIVE: review-gate run 2 persisted `clean: false` (24 confirmed, most informational) and the archive rule requires a clean review — resolve the remaining findings (or fix the reviewers' habit of reporting «Clean» items as findings), re-run review-gate, then `npm run openspec -- archive 11-usage-csv-summary --yes`.
 - **Claims:**
   - requirements numbered with Verification tags — evidence: `docs/requirements.md`
   - acceptance contracts resolve to mechanisms (existence and artifact mode PASS) — evidence: `trace/acceptance-contracts.json`
   - FR-CSV-01..03 cited by spec, owned by one slice, traced by tests — evidence: `docs/qa/traceability-report.md`
   - integrity lock established with six recorded adaptations — evidence: `factory-lock.json`, `.project-factory/onboard-report.json`
+  - qa:verify three-state battery run twice, no FAIL — evidence: `docs/qa/automated-verification-latest.md`
+  - review-gate ran twice; second run not clean — evidence: `docs/qa/review-findings-run1.json`, `openspec/changes/11-usage-csv-summary/review-findings.json`
+  - eval graded and baseline armed — evidence: `evals/results/latest.json`, `quality/eval-baseline.json`
+  - ledger digested, no vacuous passes — evidence: `docs/qa/process-health.md`
 
 > This header is machine-read: keep the exact formats `Phase <N>` and `G<N>`,
 > and give every done/verified claim an evidence path — `gate-status`
