@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-09-22T14:26:02Z",
+  "threshold": 70,
+  "dimensions": {
+    "usability-clarity": 92.5
+  },
+  "cases": [
+    {
+      "id": "csv-empty-filtered",
+      "dimension": "usability-clarity",
+      "trace": [
+        "FR-CSV-03"
+      ],
+      "capability": "dashboard",
+      "score": 93,
+      "pass": true,
+      "judges": 1,
+      "disagreement": false,
+      "notes": "The output states the exact condition from the rubric (\"no usage matches the current filters\") and both remedies (clear or widen), satisfying the gating criterion. It is exactly two sentences, uses only vocabulary visible on the card (filter names, CSV, usage), and ends with a direct imperative telling the user what to do. The only deductions are stylistic: the trailing comma before \"to include usage in the CSV\" is slightly awkward, and \"widen the provider ... range\" is a small grammatical stretch since only the date filter is truly a range; neither is a rubric miss."
+    },
+    {
+      "id": "csv-empty-source",
+      "dimension": "usability-clarity",
+      "trace": [
+        "FR-CSV-03"
+      ],
+      "capability": "dashboard",
+      "score": 92,
+      "pass": true,
+      "judges": 1,
+      "disagreement": false,
+      "notes": "The output correctly identifies the empty-source condition (\\\"this source has no usage yet\\\"), gives the right remedy (\\\"Import usage in Data sources\\\"), and never suggests widening filters, satisfying the gating criterion. It is exactly two sentences, avoids internal identifiers, and the next step is concrete and located in the UI. The only softness is the trailing clause \\\"to get a model breakdown\\\", which explains the payoff slightly obliquely for a disabled Download CSV control, but it does not violate any rubric item, so a small deduction from a shippable score."
+    }
+  ]
+}
