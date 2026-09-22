@@ -1,0 +1,129 @@
+{
+  "generatedBy": "scripts/check-trajectory.mjs",
+  "slices": [
+    {
+      "slice": "2026-09-15-01-usage-ledger",
+      "reviewEvidence": "missing",
+      "trailerCommits": 0,
+      "libDomains": [],
+      "processComplete": true
+    },
+    {
+      "slice": "2026-09-15-02-local-ingestion",
+      "reviewEvidence": "missing",
+      "trailerCommits": 0,
+      "libDomains": [],
+      "processComplete": true
+    },
+    {
+      "slice": "2026-09-15-03-team-exchange",
+      "reviewEvidence": "missing",
+      "trailerCommits": 0,
+      "libDomains": [],
+      "processComplete": true
+    },
+    {
+      "slice": "2026-09-15-04-dashboard",
+      "reviewEvidence": "missing",
+      "trailerCommits": 0,
+      "libDomains": [],
+      "processComplete": true
+    },
+    {
+      "slice": "2026-09-22-07-machine-import",
+      "reviewEvidence": "missing",
+      "trailerCommits": 0,
+      "libDomains": [],
+      "processComplete": true
+    },
+    {
+      "slice": "2026-09-22-08-visual-quality",
+      "reviewEvidence": "missing",
+      "trailerCommits": 0,
+      "libDomains": [],
+      "processComplete": true
+    },
+    {
+      "slice": "2026-09-22-09-readable-session-attribution",
+      "reviewEvidence": "missing",
+      "trailerCommits": 0,
+      "libDomains": [],
+      "processComplete": true
+    },
+    {
+      "slice": "2026-09-22-10-codex-current-prompts",
+      "reviewEvidence": "missing",
+      "trailerCommits": 0,
+      "libDomains": [],
+      "processComplete": true
+    }
+  ],
+  "overlaps": [],
+  "failures": [],
+  "warnings": [
+    {
+      "check": "review-evidence",
+      "msg": "2026-09-15-01-usage-ledger: review-findings.json is missing (review must have run clean before archive)"
+    },
+    {
+      "check": "trailer",
+      "msg": "2026-09-15-01-usage-ledger: no commit carries a \"Slice: 01-usage-ledger\" trailer"
+    },
+    {
+      "check": "review-evidence",
+      "msg": "2026-09-15-02-local-ingestion: review-findings.json is missing (review must have run clean before archive)"
+    },
+    {
+      "check": "trailer",
+      "msg": "2026-09-15-02-local-ingestion: no commit carries a \"Slice: 02-local-ingestion\" trailer"
+    },
+    {
+      "check": "review-evidence",
+      "msg": "2026-09-15-03-team-exchange: review-findings.json is missing (review must have run clean before archive)"
+    },
+    {
+      "check": "trailer",
+      "msg": "2026-09-15-03-team-exchange: no commit carries a \"Slice: 03-team-exchange\" trailer"
+    },
+    {
+      "check": "review-evidence",
+      "msg": "2026-09-15-04-dashboard: review-findings.json is missing (review must have run clean before archive)"
+    },
+    {
+      "check": "trailer",
+      "msg": "2026-09-15-04-dashboard: no commit carries a \"Slice: 04-dashboard\" trailer"
+    },
+    {
+      "check": "review-evidence",
+      "msg": "2026-09-22-07-machine-import: review-findings.json is missing (review must have run clean before archive)"
+    },
+    {
+      "check": "trailer",
+      "msg": "2026-09-22-07-machine-import: no commit carries a \"Slice: 07-machine-import\" trailer"
+    },
+    {
+      "check": "review-evidence",
+      "msg": "2026-09-22-08-visual-quality: review-findings.json is missing (review must have run clean before archive)"
+    },
+    {
+      "check": "trailer",
+      "msg": "2026-09-22-08-visual-quality: no commit carries a \"Slice: 08-visual-quality\" trailer"
+    },
+    {
+      "check": "review-evidence",
+      "msg": "2026-09-22-09-readable-session-attribution: review-findings.json is missing (review must have run clean before archive)"
+    },
+    {
+      "check": "trailer",
+      "msg": "2026-09-22-09-readable-session-attribution: no commit carries a \"Slice: 09-readable-session-attribution\" trailer"
+    },
+    {
+      "check": "review-evidence",
+      "msg": "2026-09-22-10-codex-current-prompts: review-findings.json is missing (review must have run clean before archive)"
+    },
+    {
+      "check": "trailer",
+      "msg": "2026-09-22-10-codex-current-prompts: no commit carries a \"Slice: 10-codex-current-prompts\" trailer"
+    }
+  ]
+}
