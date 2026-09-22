@@ -14,7 +14,9 @@
         "openspec/changes/11-usage-csv-summary/specs/dashboard/spec.md"
       ],
       "planned": true,
-      "tests": [],
+      "tests": [
+        "src/lib/csv-summary.test.ts"
+      ],
       "recordings": []
     },
     {
@@ -23,7 +25,9 @@
         "openspec/changes/11-usage-csv-summary/specs/dashboard/spec.md"
       ],
       "planned": true,
-      "tests": [],
+      "tests": [
+        "src/lib/csv-summary.test.ts"
+      ],
       "recordings": []
     },
     {
@@ -32,24 +36,15 @@
         "openspec/changes/11-usage-csv-summary/specs/dashboard/spec.md"
       ],
       "planned": true,
-      "tests": [],
+      "tests": [
+        "src/components/summary-csv-control.test.ts",
+        "evals/cases/csv-summary.eval.ts"
+      ],
       "recordings": []
     }
   ],
   "failures": [],
   "warnings": [
-    {
-      "check": "test-trace",
-      "msg": "FR-CSV-01 has no test annotated \"@trace FR-CSV-01\""
-    },
-    {
-      "check": "test-trace",
-      "msg": "FR-CSV-02 has no test annotated \"@trace FR-CSV-02\""
-    },
-    {
-      "check": "test-trace",
-      "msg": "FR-CSV-03 has no test annotated \"@trace FR-CSV-03\""
-    },
     {
       "check": "recording-evidence",
       "msg": "FR-CSV-01 is not referenced by any recording manifest under docs/qa/"
